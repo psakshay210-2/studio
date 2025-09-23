@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { summarizeDashboard } from '@/ai/flows/personalized-dashboard-summarization';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MOCK_EVENTS, MOCK_TASKS, MOCK_APPROVALS, MOCK_SPONSORSHIPS } from '@/lib/data';
+import { MOCK_TASKS, MOCK_APPROVALS, MOCK_SPONSORSHIPS } from '@/lib/data';
+import { useEvents } from '@/contexts/event-context';
 import { useRole } from '@/contexts/role-context';
 import { Sparkles } from 'lucide-react';
 
 export function DashboardSummary() {
   const { role } = useRole();
+  const { events } = useEvents();
   const [summary, setSummary] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +21,7 @@ export function DashboardSummary() {
         const input = {
           userRole: role,
           currentActivities: 'Preparing for upcoming events and managing tasks.',
-          events: MOCK_EVENTS.map(e => `${e.name} on ${e.date}`),
+          events: events.map(e => `${e.name} on ${e.date}`),
           tasks: MOCK_TASKS.filter(t => t.status !== 'Done').map(t => t.title),
           updates: role === 'Approver' ? MOCK_APPROVALS.map(a => `Approval request for ${a.item}`) : [],
         };
@@ -33,7 +35,7 @@ export function DashboardSummary() {
       }
     }
     getSummary();
-  }, [role]);
+  }, [role, events]);
 
   return (
     <Card className="bg-primary/5 border-primary/20">

@@ -1,13 +1,20 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { MOCK_EVENTS } from '@/lib/data';
+import { useEvents } from '@/contexts/event-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PlusCircle } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
+import { useRouter } from 'next/navigation';
+
 
 export default function EventsPage() {
+  const { events } = useEvents();
+  const router = useRouter();
+
   return (
     <div className="space-y-8">
       <PageHeader title="Events" description="Manage all your past and upcoming events.">
@@ -20,7 +27,7 @@ export default function EventsPage() {
       </PageHeader>
       
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {MOCK_EVENTS.map((event) => (
+        {events.map((event) => (
           <Card key={event.id} className="flex flex-col">
             <div className="relative">
               <Image
@@ -41,7 +48,7 @@ export default function EventsPage() {
               <p className="text-sm text-muted-foreground line-clamp-3">{event.description}</p>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">View Details</Button>
+              <Button variant="outline" className="w-full" onClick={() => router.push(`/events/${event.id}`)}>View Details</Button>
             </CardFooter>
           </Card>
         ))}

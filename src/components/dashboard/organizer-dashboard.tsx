@@ -1,5 +1,7 @@
+'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MOCK_EVENTS, MOCK_TASKS } from '@/lib/data';
+import { MOCK_TASKS } from '@/lib/data';
+import { useEvents } from '@/contexts/event-context';
 import { List, Calendar, CheckSquare } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,7 +10,8 @@ import { DashboardSummary } from './dashboard-summary';
 import { RegistrationsChart } from './registrations-chart';
 
 export function OrganizerDashboard() {
-  const upcomingEvents = MOCK_EVENTS.filter(e => e.status === 'Upcoming').slice(0, 2);
+  const { events } = useEvents();
+  const upcomingEvents = events.filter(e => e.status === 'Upcoming').slice(0, 2);
   const recentTasks = MOCK_TASKS.slice(0, 3);
 
   return (
@@ -24,7 +27,7 @@ export function OrganizerDashboard() {
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-4">
             {upcomingEvents.map((event) => (
-              <Link href="#" key={event.id} className="group">
+              <Link href={`/events/${event.id}`} key={event.id} className="group">
                 <Card className="overflow-hidden transition-all group-hover:shadow-lg group-hover:-translate-y-1">
                   <Image
                     src={event.image}
@@ -56,7 +59,7 @@ export function OrganizerDashboard() {
               <div key={task.id} className="flex items-start justify-between">
                 <div>
                   <p className="font-medium">{task.title}</p>
-                  <p className="text-sm text-muted-foreground">{MOCK_EVENTS.find(e => e.id === task.eventId)?.name}</p>
+                  <p className="text-sm text-muted-foreground">{events.find(e => e.id === task.eventId)?.name}</p>
                 </div>
                 <Badge variant={task.status === 'Done' ? 'secondary' : 'default'} className={task.status === 'In Progress' ? 'bg-accent text-accent-foreground' : ''}>{task.status}</Badge>
               </div>

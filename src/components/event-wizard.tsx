@@ -16,6 +16,9 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { generateEventDescription } from '@/ai/flows/event-description-generator';
+import { useEvents } from '@/contexts/event-context';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent } from './ui/card';
 
 const eventSchema = z.object({
   name: z.string().min(3, "Event name must be at least 3 characters."),
@@ -36,6 +39,9 @@ export function EventWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const { addEvent } = useEvents();
+  const router = useRouter();
+
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -74,14 +80,20 @@ export function EventWizard() {
   };
 
   const processForm = (data: EventFormData) => {
-    console.log(data);
+    addEvent({
+        id: `event-${Date.now()}`,
+        name: data.name,
+        date: format(data.date, 'yyyy-MM-dd'),
+        location: data.location,
+        description: data.description,
+        image: 'https://picsum.photos/seed/new-event/600/400',
+        status: 'Upcoming'
+    });
     toast({
         title: 'Event Created!',
         description: `Your event "${data.name}" has been successfully created.`,
     });
-    // In a real app, you would redirect or clear the form
-    setCurrentStep(0);
-    form.reset();
+    router.push('/events');
   };
   
   const next = async () => {

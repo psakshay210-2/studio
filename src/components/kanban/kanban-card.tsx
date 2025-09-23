@@ -3,7 +3,8 @@
 import type { Task } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { MOCK_EVENTS } from '@/lib/data';
+import { useEvents } from '@/contexts/event-context';
+
 
 type KanbanCardProps = {
   task: Task;
@@ -11,7 +12,8 @@ type KanbanCardProps = {
 };
 
 export function KanbanCard({ task, onDragStart }: KanbanCardProps) {
-  const eventName = MOCK_EVENTS.find(e => e.id === task.eventId)?.name;
+  const { events } = useEvents();
+  const eventName = events.find(e => e.id === task.eventId)?.name;
 
   return (
     <div 
