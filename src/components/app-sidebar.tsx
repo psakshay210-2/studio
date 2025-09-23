@@ -44,7 +44,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-3">
           <Logo className="w-10 h-10" />
           <div className="flex flex-col">
-            <h2 className="text-lg font-headline font-semibold text-foreground">
+            <h2 className="text-lg font-headline font-semibold text-primary">
               EventFlow
             </h2>
           </div>
@@ -54,16 +54,17 @@ export function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref legacyBehavior>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith(item.href)}
-                  tooltip={item.label}
-                  className="font-headline"
-                >
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith(item.href)}
+                tooltip={item.label}
+                className="font-headline"
+              >
+                <Link href={item.href}>
                   <item.icon />
                   <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
