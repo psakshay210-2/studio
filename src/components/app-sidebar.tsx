@@ -44,7 +44,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-3">
           <Logo className="w-10 h-10" />
           <div className="flex flex-col">
-            <h2 className="text-lg font-headline font-semibold text-primary-foreground">
+            <h2 className="text-lg font-headline font-semibold text-foreground">
               EventFlow
             </h2>
           </div>
