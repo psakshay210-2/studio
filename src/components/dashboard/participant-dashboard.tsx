@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export function ParticipantDashboard() {
   const { events } = useEvents();
-  const myEvents = events.slice(0, 2);
+  const myEvents = events.filter(e => !e.parentId).slice(0, 2);
 
   return (
     <div className="grid gap-6">
@@ -35,7 +35,7 @@ export function ParticipantDashboard() {
                 />
                 <CardHeader>
                   <CardTitle>{event.name}</CardTitle>
-                  <CardDescription>{event.date} at {event.location}</CardDescription>
+                  <CardDescription>{event.startDate} at {event.location}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>

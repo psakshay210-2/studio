@@ -83,7 +83,7 @@ export function EventWizard() {
     addEvent({
         id: `event-${Date.now()}`,
         name: data.name,
-        date: format(data.date, 'yyyy-MM-dd'),
+        startDate: format(data.date, 'yyyy-MM-dd'),
         location: data.location,
         description: data.description,
         image: 'https://picsum.photos/seed/new-event/600/400',
@@ -109,7 +109,7 @@ export function EventWizard() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 

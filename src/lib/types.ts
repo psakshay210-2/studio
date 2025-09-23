@@ -11,11 +11,14 @@ export type User = {
 export type Event = {
   id: string;
   name: string;
-  date: string;
+  startDate: string;
+  endDate?: string;
   location: string;
   description: string;
   image: string;
+  gallery?: string[];
   status: 'Upcoming' | 'Past' | 'Cancelled';
+  parentId?: string;
 };
 
 export type TaskStatus = 'To Do' | 'In Progress' | 'Done';

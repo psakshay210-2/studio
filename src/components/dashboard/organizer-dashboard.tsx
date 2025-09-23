@@ -11,7 +11,7 @@ import { RegistrationsChart } from './registrations-chart';
 
 export function OrganizerDashboard() {
   const { events } = useEvents();
-  const upcomingEvents = events.filter(e => e.status === 'Upcoming').slice(0, 2);
+  const upcomingEvents = events.filter(e => e.status === 'Upcoming' && !e.parentId).slice(0, 2);
   const recentTasks = MOCK_TASKS.slice(0, 3);
 
   return (
@@ -39,7 +39,7 @@ export function OrganizerDashboard() {
                   />
                   <CardHeader>
                     <CardTitle className="text-lg">{event.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{event.date} &middot; {event.location}</p>
+                    <p className="text-sm text-muted-foreground">{event.startDate} &middot; {event.location}</p>
                   </CardHeader>
                 </Card>
               </Link>

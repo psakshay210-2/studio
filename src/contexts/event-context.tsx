@@ -8,6 +8,7 @@ interface EventContextType {
   events: Event[];
   addEvent: (event: Event) => void;
   getEventById: (id: string) => Event | undefined;
+  getSubEvents: (parentId: string) => Event[];
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -22,8 +23,12 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const getEventById = (id: string) => {
     return events.find((event) => event.id === id);
   };
+  
+  const getSubEvents = (parentId: string) => {
+    return events.filter((event) => event.parentId === parentId);
+  }
 
-  const value = { events, addEvent, getEventById };
+  const value = { events, addEvent, getEventById, getSubEvents };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
 }

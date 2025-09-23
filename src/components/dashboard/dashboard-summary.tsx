@@ -21,7 +21,7 @@ export function DashboardSummary() {
         const input = {
           userRole: role,
           currentActivities: 'Preparing for upcoming events and managing tasks.',
-          events: events.map(e => `${e.name} on ${e.date}`),
+          events: events.map(e => `${e.name} on ${e.startDate}`),
           tasks: MOCK_TASKS.filter(t => t.status !== 'Done').map(t => t.title),
           updates: role === 'Approver' ? MOCK_APPROVALS.map(a => `Approval request for ${a.item}`) : [],
         };

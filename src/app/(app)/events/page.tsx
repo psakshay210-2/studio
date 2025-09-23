@@ -17,6 +17,17 @@ export default function EventsPage() {
   const router = useRouter();
   const { role } = useRole();
 
+  const parentEvents = events.filter(event => !event.parentId);
+
+  const formatDateRange = (startDate: string, endDate?: string) => {
+    const start = new Date(startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    if (endDate) {
+        const end = new Date(endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        return `${start} - ${end}`;
+    }
+    return start;
+  }
+
   return (
     <div className="space-y-8">
       <PageHeader title="Events" description="Manage all your past and upcoming events.">
@@ -31,7 +42,7 @@ export default function EventsPage() {
       </PageHeader>
       
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
+        {parentEvents.map((event) => (
           <Card key={event.id} className="flex flex-col">
             <div className="relative">
               <Image
@@ -46,7 +57,7 @@ export default function EventsPage() {
             </div>
             <CardHeader>
               <CardTitle>{event.name}</CardTitle>
-              <CardDescription>{event.date} &middot; {event.location}</CardDescription>
+              <CardDescription>{formatDateRange(event.startDate, event.endDate)} &middot; {event.location}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <p className="text-sm text-muted-foreground line-clamp-3">{event.description}</p>
