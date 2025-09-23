@@ -20,23 +20,47 @@ import {
   MessageSquare,
   LogOut,
   Settings,
+  Handshake,
+  Briefcase,
+  Ticket,
 } from 'lucide-react';
 import { Logo } from './icons/logo';
 import { useRole } from '@/contexts/role-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
+import type { Role } from '@/lib/types';
 
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/events', icon: Calendar, label: 'Events' },
-  { href: '/tasks', icon: CheckSquare, label: 'Tasks' },
-  { href: '/messages', icon: MessageSquare, label: 'Messages' },
-];
+const navItemsByRole: Record<Role, { href: string; icon: React.ElementType; label: string }[]> = {
+    Organizer: [
+        { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/events', icon: Calendar, label: 'Events' },
+        { href: '/tasks', icon: CheckSquare, label: 'Tasks' },
+        { href: '/messages', icon: MessageSquare, label: 'Messages' },
+    ],
+    Approver: [
+        { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/events', icon: Calendar, label: 'Events' },
+    ],
+    Participant: [
+        { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/events', icon: Calendar, label: 'Events' },
+    ],
+    Vendor: [
+        { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/events', icon: Calendar, label: 'Events' },
+        { href: '/messages', icon: MessageSquare, label: 'Messages' },
+    ],
+    Sponsor: [
+        { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/events', icon: Calendar, label: 'Events' },
+    ],
+};
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { user } = useRole();
+  const { user, role } = useRole();
+  const navItems = navItemsByRole[role];
 
   return (
     <>
@@ -54,17 +78,17 @@ export function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname.startsWith(item.href)}
-                tooltip={item.label}
-                className="font-headline"
-              >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
+                <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={item.label}
+                    className="font-headline"
+                >
+                    <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </Link>
+                </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

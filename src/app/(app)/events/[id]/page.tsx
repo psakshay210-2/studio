@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRole } from '@/contexts/role-context';
 
 export default function EventDetailsPage() {
   const { id } = useParams();
   const { getEventById } = useEvents();
+  const { role } = useRole();
   const event = getEventById(id as string);
 
   if (!event) {
@@ -61,10 +63,12 @@ export default function EventDetailsPage() {
                     <div className="flex items-center gap-3">
                         <Badge>{event.status}</Badge>
                     </div>
-                    <Button className="w-full mt-4">
-                        <Ticket className="mr-2 h-4 w-4" />
-                        Register Now
-                    </Button>
+                    {role === 'Participant' && (
+                        <Button className="w-full mt-4">
+                            <Ticket className="mr-2 h-4 w-4" />
+                            Register Now
+                        </Button>
+                    )}
                 </CardContent>
             </Card>
         </div>

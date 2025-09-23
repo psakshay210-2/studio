@@ -9,21 +9,25 @@ import { Badge } from '@/components/ui/badge';
 import { PlusCircle } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { useRouter } from 'next/navigation';
+import { useRole } from '@/contexts/role-context';
 
 
 export default function EventsPage() {
   const { events } = useEvents();
   const router = useRouter();
+  const { role } = useRole();
 
   return (
     <div className="space-y-8">
       <PageHeader title="Events" description="Manage all your past and upcoming events.">
-        <Button asChild>
-          <Link href="/events/create">
-            <PlusCircle />
-            Create Event
-          </Link>
-        </Button>
+        {role === 'Organizer' && (
+          <Button asChild>
+            <Link href="/events/create">
+              <PlusCircle />
+              Create Event
+            </Link>
+          </Button>
+        )}
       </PageHeader>
       
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
