@@ -1,0 +1,53 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { MOCK_APPROVALS } from '@/lib/data';
+import { CheckCircle, XCircle } from 'lucide-react';
+import { DashboardSummary } from './dashboard-summary';
+
+export function ApproverDashboard() {
+  return (
+     <div className="grid gap-6">
+        <DashboardSummary />
+        <Card>
+        <CardHeader>
+            <CardTitle>Pending Approvals</CardTitle>
+            <CardDescription>Review and respond to the following requests.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Table>
+            <TableHeader>
+                <TableRow>
+                <TableHead>Event</TableHead>
+                <TableHead>Item</TableHead>
+                <TableHead>Submitted By</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {MOCK_APPROVALS.map((approval) => (
+                <TableRow key={approval.id}>
+                    <TableCell className="font-medium">{approval.eventName}</TableCell>
+                    <TableCell>{approval.item}</TableCell>
+                    <TableCell>{approval.submittedBy}</TableCell>
+                    <TableCell className="text-right">${approval.amount.toLocaleString()}</TableCell>
+                    <TableCell className="text-center">
+                    <div className="flex justify-center gap-2">
+                        <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-50">
+                        <CheckCircle className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                        <XCircle className="h-5 w-5" />
+                        </Button>
+                    </div>
+                    </TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+        </CardContent>
+        </Card>
+    </div>
+  );
+}

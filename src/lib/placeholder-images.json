@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "tech-conference",
+      "description": "A bustling tech conference with attendees networking.",
+      "imageUrl": "https://images.unsplash.com/photo-1560439514-4e9645039924?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx0ZWNoJTIwY29uZmVyZW5jZXxlbnwwfHx8fDE3NTg1ODU3OTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tech conference"
+    },
+    {
+      "id": "music-festival",
+      "description": "A vibrant outdoor music festival at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1522601157550-4282ae97472d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtdXNpYyUyMGZlc3RpdmFsfGVufDB8fHx8MTc1ODU4MzI4Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "music festival"
+    },
+    {
+      "id": "corporate-gala",
+      "description": "An elegant corporate gala dinner setting.",
+      "imageUrl": "https://images.unsplash.com/photo-1574847052651-02b57f7f5a4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb3Jwb3JhdGUlMjBnYWxhfGVufDB8fHx8MTc1ODY0NjIxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "corporate gala"
+    },
+    {
+      "id": "art-exhibition",
+      "description": "People admiring paintings at a modern art exhibition.",
+      "imageUrl": "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhcnQlMjBleGhpYml0aW9ufGVufDB8fHx8MTc1ODYzNDk3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "art exhibition"
+    },
+    {
+      "id": "charity-run",
+      "description": "Participants in a charity run marathon.",
+      "imageUrl": "https://images.unsplash.com/photo-1746377827630-a608bfae1a9b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjaGFyaXR5JTIwcnVufGVufDB8fHx8MTc1ODU4NjM5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "charity run"
+    },
+    {
+      "id": "product-launch",
+      "description": "A dynamic product launch presentation on a stage.",
+      "imageUrl": "https://images.unsplash.com/photo-1758467700917-3517eb11ec8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwcm9kdWN0JTIwbGF1bmNofGVufDB8fHx8MTc1ODYwNzMxOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product launch"
+    },
+    {
+      "id": "cooking-workshop",
+      "description": "A hands-on cooking workshop with participants learning.",
+      "imageUrl": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb29raW5nJTIwd29ya3Nob3B8ZW58MHx8fHwxNzU4NjQ2MjEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cooking workshop"
+    }
+  ]
 }
