@@ -2,12 +2,13 @@ import type { User, Event, Task, Channel } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export const MOCK_USERS: User[] = [
-  { id: 'user-1', name: 'Alex Morgan', email: 'alex@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-1', role: 'Organizer' },
-  { id: 'user-2', name: 'Brenda Smith', email: 'brenda@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-2', role: 'Approver' },
-  { id: 'user-3', name: 'Charlie Day', email: 'charlie@example.com', avatar: 'https://i.pravatar.cc/150?u=user-3', role: 'Participant' },
-  { id: 'user-4', name: 'David Lee', email: 'david@catering.com', avatar: 'https://i.pravatar.cc/150?u=user-4', role: 'Vendor' },
-  { id: 'user-5', name: 'Eva Green', email: 'eva@sponsorcorp.com', avatar: 'https://i.pravatar.cc/150?u=user-5', role: 'Sponsor' },
-  { id: 'user-6', name: 'Frank West', email: 'frank@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-6', role: 'Organizer' },
+  { id: 'user-1', name: 'Balaji M', email: 'balaji@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-1', role: 'Organizer' },
+  { id: 'user-2', name: 'Laville Vishnu Prasath', email: 'laville@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-2', role: 'Approver' },
+  { id: 'user-3', name: 'Hemabaalan C', email: 'hemabaalan@example.com', avatar: 'https://i.pravatar.cc/150?u=user-3', role: 'Participant' },
+  { id: 'user-4', name: 'Vaishnavaraja R G', email: 'vaishnavaraja@catering.com', avatar: 'https://i.pravatar.cc/150?u=user-4', role: 'Vendor' },
+  { id: 'user-5', name: 'PS Akshay', email: 'akshay@sponsorcorp.com', avatar: 'https://i.pravatar.cc/150?u=user-5', role: 'Sponsor' },
+  { id: 'user-6', name: 'Govind Raj', email: 'govind@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-6', role: 'Organizer' },
+  { id: 'user-7', name: 'Jacob George', email: 'jacob@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-7', role: 'Organizer' },
 ];
 
 const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || 'https://picsum.photos/seed/placeholder/600/400';
@@ -23,6 +24,10 @@ export const MOCK_EVENTS: Event[] = [
     image: findImage('tech-conference'),
     gallery: [findImage('tech-conference'), findImage('product-launch'), findImage('corporate-gala')],
     status: 'Upcoming',
+    coordinators: [
+        { userId: 'user-1', eventRole: 'Lead Organizer' },
+        { userId: 'user-6', eventRole: 'Logistics' },
+    ]
   },
   {
     id: 'sub-event-1',
@@ -107,17 +112,17 @@ export const MOCK_CHANNELS: Channel[] = [
   },
   {
     id: 'channel-3',
-    name: '@BrendaSmith',
+    name: '@LavilleVishnuPrasath',
     messages: [
-      { id: 'msg-6', sender: MOCK_USERS[0], text: 'Hi Brenda, could you please approve the budget for the marketing campaign?', timestamp: '9:00 AM' },
+      { id: 'msg-6', sender: MOCK_USERS[0], text: 'Hi Laville, could you please approve the budget for the marketing campaign?', timestamp: '9:00 AM' },
     ]
   }
 ];
 
 export const MOCK_APPROVALS = [
-  { id: 'approve-1', eventName: 'InnovateX 2024', item: 'Catering Contract - "Gourmet Bites"', submittedBy: 'Alex Morgan', amount: 45000 },
-  { id: 'approve-2', eventName: 'Sunset Music Fest', item: 'Artist Rider - DJ Phoenix', submittedBy: 'Frank West', amount: 20000 },
-  { id: 'approve-3', eventName: 'InnovateX 2024', item: 'AV Equipment Rental', submittedBy: 'Alex Morgan', amount: 15000 },
+  { id: 'approve-1', eventName: 'InnovateX 2024', item: 'Catering Contract - "Gourmet Bites"', submittedBy: 'Balaji M', amount: 45000 },
+  { id: 'approve-2', eventName: 'Sunset Music Fest', item: 'Artist Rider - DJ Phoenix', submittedBy: 'Govind Raj', amount: 20000 },
+  { id: 'approve-3', eventName: 'InnovateX 2024', item: 'AV Equipment Rental', submittedBy: 'Balaji M', amount: 15000 },
 ];
 
 export const MOCK_SPONSORSHIPS = [
