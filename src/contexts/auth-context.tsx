@@ -3,11 +3,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_USERS } from '@/lib/data';
-import { useRole } from './role-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { User } from '@/lib/types';
+import { useRole } from './role-context';
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  user: User | null;
   login: (email: string) => boolean;
   logout: () => void;
   loading: boolean;
@@ -16,40 +18,43 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const { setRole } = useRole();
   const router = useRouter();
 
   useEffect(() => {
-    // Simulate checking for a stored session
+    // This effect should only run in the RoleProvider, after auth is settled.
+    // It's a bit of a workaround for the context dependency.
+  }, []);
+
+
+  useEffect(() => {
     try {
-      const storedAuth = sessionStorage.getItem('isAuthenticated');
-      if (storedAuth === 'true') {
-        const storedRole = sessionStorage.getItem('userRole');
-        if (storedRole) {
-            setRole(storedRole as any);
-        }
-        setIsAuthenticated(true);
+      const storedUser = sessionStorage.getItem('authUser');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
       }
     } catch (error) {
-        console.error('Could not access session storage:', error);
+      console.error('Could not access session storage:', error);
     } finally {
-        setTimeout(() => setLoading(false), 500); // Simulate loading delay
+      setTimeout(() => setLoading(false), 500);
     }
-  }, [setRole]);
+  }, []);
+  
+  const isAuthenticated = !!user;
 
   const login = (email: string): boolean => {
-    const user = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (user) {
-      setIsAuthenticated(true);
-      setRole(user.role);
-       try {
-        sessionStorage.setItem('isAuthenticated', 'true');
-        sessionStorage.setItem('userRole', user.role);
-       } catch (error) {
+    const foundUser = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (foundUser) {
+      setUser(foundUser);
+      try {
+        sessionStorage.setItem('authUser', JSON.stringify(foundUser));
+        // We still store role for initial role setting on reload.
+        sessionStorage.setItem('userRole', foundUser.role);
+      } catch (error) {
         console.error('Could not access session storage:', error);
-       }
+      }
       router.push('/dashboard');
       return true;
     }
@@ -57,18 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
+    setUser(null);
     try {
-        sessionStorage.removeItem('isAuthenticated');
+        sessionStorage.removeItem('authUser');
         sessionStorage.removeItem('userRole');
     } catch (error) {
         console.error('Could not access session storage:', error);
     }
     router.push('/login');
   };
+  
+  const value = { isAuthenticated, user, login, logout, loading };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -84,13 +91,24 @@ export function useAuth() {
 
 export function AuthGuard({ children }: { children: ReactNode }) {
     const { isAuthenticated, loading } = useAuth();
+    const { setRole } = useRole();
     const router = useRouter();
 
     useEffect(() => {
         if (!loading && !isAuthenticated) {
             router.push('/login');
         }
-    }, [isAuthenticated, loading, router]);
+        if(!loading && isAuthenticated) {
+          try {
+            const storedRole = sessionStorage.getItem('userRole');
+            if (storedRole) {
+              setRole(storedRole as any);
+            }
+          } catch (error) {
+            console.error('Could not access session storage:', error);
+          }
+        }
+    }, [isAuthenticated, loading, router, setRole]);
 
 
     if (loading || !isAuthenticated) {

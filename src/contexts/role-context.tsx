@@ -3,6 +3,7 @@
 import type { Role, User } from '@/lib/types';
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { MOCK_USERS } from '@/lib/data';
+import { useAuth } from './auth-context';
 
 interface RoleContextType {
   role: Role;
@@ -15,11 +16,11 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export function RoleProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<Role>('Organizer');
+  const { user: authUser } = useAuth(); // Get user from AuthContext
   const availableRoles: Role[] = ['Organizer', 'Approver', 'Participant', 'Vendor', 'Sponsor'];
 
-  const user = useMemo(() => {
-    return MOCK_USERS.find((u) => u.role === role) || MOCK_USERS[0];
-  }, [role]);
+  // The user is now the authenticated user. Role switching only changes the `role` state.
+  const user = authUser || MOCK_USERS[0];
 
   const value = { role, setRole, user, availableRoles };
 

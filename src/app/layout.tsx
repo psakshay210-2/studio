@@ -23,11 +23,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <RoleProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <RoleProvider>
             {children}
-          </AuthProvider>
-        </RoleProvider>
+          </RoleProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
