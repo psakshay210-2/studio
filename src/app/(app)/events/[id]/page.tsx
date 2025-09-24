@@ -10,13 +10,71 @@ import { Calendar, MapPin, Ticket, Clapperboard, GalleryHorizontal } from 'lucid
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/contexts/role-context';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect, useState } from 'react';
 
 export default function EventDetailsPage() {
   const { id } = useParams();
   const { getEventById, getSubEvents } = useEvents();
   const { role } = useRole();
-  const event = getEventById(id as string);
-  const subEvents = getSubEvents(id as string);
+  const [event, setEvent] = useState<any>(null);
+  const [subEvents, setSubEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const eventData = getEventById(id as string);
+    if (eventData) {
+      setEvent(eventData);
+      setSubEvents(getSubEvents(id as string));
+    }
+    // Simulate loading delay
+    setTimeout(() => setLoading(false), 500);
+  }, [id, getEventById, getSubEvents]);
+
+
+  const formatDateRange = (startDate: string, endDate?: string) => {
+    const start = new Date(startDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    if (endDate) {
+        const end = new Date(endDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        return `${start} - ${end}`;
+    }
+    return start;
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-10 w-2/3" />
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <Card>
+              <Skeleton className="w-full h-96 rounded-t-lg" />
+              <CardHeader>
+                  <Skeleton className="h-12 w-3/4" />
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-5/6" />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="space-y-6">
+              <Card>
+                  <CardHeader>
+                      <Skeleton className="h-8 w-1/2" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                      <Skeleton className="h-6 w-full" />
+                      <Skeleton className="h-6 w-full" />
+                      <Skeleton className="h-6 w-1/4" />
+                  </CardContent>
+              </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
@@ -26,14 +84,6 @@ export default function EventDetailsPage() {
     );
   }
   
-  const formatDateRange = (startDate: string, endDate?: string) => {
-    const start = new Date(startDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-    if (endDate) {
-        const end = new Date(endDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-        return `${start} - ${end}`;
-    }
-    return start;
-  }
 
   return (
     <div className="space-y-8">
@@ -63,7 +113,7 @@ export default function EventDetailsPage() {
                 <CardTitle className="flex items-center gap-2"><GalleryHorizontal /> Gallery</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {event.gallery.map((imgUrl, index) => (
+                {event.gallery.map((imgUrl: string, index: number) => (
                   <Image key={index} src={imgUrl} alt={`${event.name} gallery image ${index + 1}`} width={400} height={300} className="rounded-lg object-cover aspect-video" data-ai-hint="event photo" />
                 ))}
               </CardContent>
