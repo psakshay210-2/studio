@@ -9,10 +9,12 @@ import type { ServiceRequest } from "@/lib/types";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { CreateServiceRequestDialog } from "@/components/service-requests/create-service-request-dialog";
 
 export default function ServiceRequestsPage() {
     const [requests, setRequests] = useState<ServiceRequest[]>(MOCK_SERVICE_REQUESTS);
     const { events } = useEvents();
+    const [isCreateRequestOpen, setCreateRequestOpen] = useState(false);
 
     const getStatusVariant = (status: ServiceRequest['status']) => {
         switch (status) {
@@ -23,10 +25,20 @@ export default function ServiceRequestsPage() {
         }
     }
 
+    const handleAddRequest = (newRequest: Omit<ServiceRequest, 'id' | 'status' | 'organizerId'>) => {
+        const requestToAdd: ServiceRequest = {
+            ...newRequest,
+            id: `sr-${Date.now()}`,
+            status: 'Open',
+            organizerId: 'user-1' // Assuming the current user is the organizer
+        };
+        setRequests(prev => [requestToAdd, ...prev]);
+    }
+
     return (
         <div className="space-y-8">
             <PageHeader title="Service Requests" description="Manage service needs for your events.">
-                <Button>
+                <Button onClick={() => setCreateRequestOpen(true)}>
                     <PlusCircle />
                     Create Request
                 </Button>
@@ -53,7 +65,7 @@ export default function ServiceRequestsPage() {
                                {appliedVendor && (
                                  <div>
                                     <p className="text-sm font-semibold">Vendor Bid</p>
-                                    <p className="text-sm text-muted-foreground">{appliedVendor.name}</p>
+                                    <p className="text-sm text-muted-foreground">{appliedVendor.name} - ${request.bidAmount?.toLocaleString()}</p>
                                  </div>
                                )}
                                 {awardedVendor && (
@@ -70,6 +82,11 @@ export default function ServiceRequestsPage() {
                     )
                 })}
             </div>
+            <CreateServiceRequestDialog
+                isOpen={isCreateRequestOpen}
+                onOpenChange={setCreateRequestOpen}
+                onServiceRequestCreate={handleAddRequest}
+            />
         </div>
     );
 }

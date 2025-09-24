@@ -74,4 +74,5 @@ export type ServiceRequest = {
     appliedVendorId?: string;
     appliedVendor?: User;
     awardedVendorId?: string;
+    bidAmount?: number;
 };

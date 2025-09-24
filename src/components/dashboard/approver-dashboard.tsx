@@ -127,6 +127,7 @@ export function ApproverDashboard() {
                                 <TableHead>Event</TableHead>
                                 <TableHead>Service</TableHead>
                                 <TableHead>Vendor Bid</TableHead>
+                                <TableHead>Amount</TableHead>
                                 <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -136,6 +137,7 @@ export function ApproverDashboard() {
                                     <TableCell>{events.find(e => e.id === req.eventId)?.name}</TableCell>
                                     <TableCell className="font-medium">{req.service}</TableCell>
                                     <TableCell>{req.appliedVendor?.name}</TableCell>
+                                    <TableCell>${req.bidAmount?.toLocaleString()}</TableCell>
                                     <TableCell className="text-center">
                                     <div className="flex justify-center gap-2">
                                         <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleServiceRequestApproval(req.id, true)}>

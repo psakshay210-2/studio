@@ -10,21 +10,22 @@ import { useEvents } from '@/contexts/event-context';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useRole } from '@/contexts/role-context';
+import { SubmitBidDialog } from '../service-requests/submit-bid-dialog';
 
 export function VendorDashboard() {
   const { events } = useEvents();
   const { user } = useRole();
   const { toast } = useToast();
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>(MOCK_SERVICE_REQUESTS);
+  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
 
   const myAgreements = serviceRequests.filter(sr => sr.awardedVendorId === user.id);
   const openOpportunities = serviceRequests.filter(sr => sr.status === 'Open');
 
-  const handleBid = (requestId: string) => {
-    // In a real app, this would be a more complex state update involving context or a backend call.
+  const handleBidSubmit = (requestId: string, amount: number) => {
     setServiceRequests(prev => prev.map(sr => 
         sr.id === requestId 
-        ? { ...sr, status: 'Pending Approval', appliedVendorId: user.id } 
+        ? { ...sr, status: 'Pending Approval', appliedVendorId: user.id, bidAmount: amount } 
         : sr
     ));
 
@@ -32,7 +33,7 @@ export function VendorDashboard() {
     if(request) {
         toast({
             title: 'Bid Submitted!',
-            description: `Your bid for "${request.service}" has been submitted for approval.`,
+            description: `Your bid of $${amount.toLocaleString()} for "${request.service}" has been submitted for approval.`,
         });
     }
   };
@@ -84,7 +85,7 @@ export function VendorDashboard() {
                  </CardHeader>
                  <CardContent>
                     <p className="text-sm text-muted-foreground mb-4">{request.description}</p>
-                    <Button className="w-full" onClick={() => handleBid(request.id)}>Submit Bid</Button>
+                    <Button className="w-full" onClick={() => setSelectedRequest(request)}>Submit Bid</Button>
                  </CardContent>
               </Card>
             )
@@ -96,6 +97,19 @@ export function VendorDashboard() {
           )}
         </CardContent>
       </Card>
+      
+      {selectedRequest && (
+        <SubmitBidDialog
+            isOpen={!!selectedRequest}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                    setSelectedRequest(null);
+                }
+            }}
+            serviceRequest={selectedRequest}
+            onSubmit={handleBidSubmit}
+        />
+      )}
     </div>
   );
 }

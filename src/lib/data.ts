@@ -139,7 +139,7 @@ export const MOCK_SPONSORSHIPS = [
 
 export const MOCK_SERVICE_REQUESTS: ServiceRequest[] = [
     { id: 'sr-1', eventId: 'event-1', service: 'Full-service Catering', description: 'Need catering for 500 people for 3 days. Breakfast, lunch, and evening snacks.', status: 'Open', organizerId: 'user-1' },
-    { id: 'sr-2', eventId: 'event-2', service: 'Audio/Visual Equipment', description: 'Full AV setup for main stage, including speakers, mics, and lighting rig.', status: 'Pending Approval', organizerId: 'user-6', appliedVendorId: 'user-8', appliedVendor: MOCK_USERS[7] },
-    { id: 'sr-3', eventId: 'event-3', service: 'Floral Arrangements', description: 'Elegant floral centerpieces for 50 tables, plus entrance decor.', status: 'Awarded', organizerId: 'user-1', awardedVendorId: 'user-4' },
+    { id: 'sr-2', eventId: 'event-2', service: 'Audio/Visual Equipment', description: 'Full AV setup for main stage, including speakers, mics, and lighting rig.', status: 'Pending Approval', organizerId: 'user-6', appliedVendorId: 'user-8', appliedVendor: MOCK_USERS[7], bidAmount: 22000 },
+    { id: 'sr-3', eventId: 'event-3', service: 'Floral Arrangements', description: 'Elegant floral centerpieces for 50 tables, plus entrance decor.', status: 'Awarded', organizerId: 'user-1', awardedVendorId: 'user-4', bidAmount: 8500 },
     { id: 'sr-4', eventId: 'event-1', service: 'Security Staff', description: '20 security personnel for all event days, including overnight watch.', status: 'Open', organizerId: 'user-1' },
 ];
