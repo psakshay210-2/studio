@@ -19,11 +19,15 @@ import { generateEventDescription } from '@/ai/flows/event-description-generator
 import { useEvents } from '@/contexts/event-context';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from './ui/card';
+import type { DateRange } from 'react-day-picker';
 
 const eventSchema = z.object({
   name: z.string().min(3, "Event name must be at least 3 characters."),
   location: z.string().min(3, "Location is required."),
-  date: z.date({ required_error: "A date is required." }),
+  dateRange: z.object({
+    from: z.date({ required_error: "A start date is required." }),
+    to: z.date().optional(),
+  }),
   keywords: z.string().optional(),
   description: z.string().min(10, "Description must be at least 10 characters."),
 });
@@ -83,7 +87,8 @@ export function EventWizard() {
     addEvent({
         id: `event-${Date.now()}`,
         name: data.name,
-        startDate: format(data.date, 'yyyy-MM-dd'),
+        startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
+        endDate: data.dateRange.to ? format(data.dateRange.to, 'yyyy-MM-dd') : undefined,
         location: data.location,
         description: data.description,
         image: 'https://picsum.photos/seed/new-event/600/400',
@@ -97,7 +102,7 @@ export function EventWizard() {
   };
   
   const next = async () => {
-    const isValid = await form.trigger(['name', 'location', 'date', 'description']);
+    const isValid = await form.trigger(['name', 'location', 'dateRange', 'description']);
     if (isValid) {
         if (currentStep < steps.length - 1) {
             setCurrentStep(step => step + 1);
@@ -109,9 +114,26 @@ export function EventWizard() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
+
+  const formatDateRangeForDisplay = (dateRange: DateRange | undefined) => {
+    if (!dateRange || !dateRange.from) return "Pick a date range";
+    if (dateRange.to) {
+        return `${format(dateRange.from, "LLL dd, y")} - ${format(dateRange.to, "LLL dd, y")}`;
+    }
+    return format(dateRange.from, "PPP");
+  }
+
+  const formatConfirmationDate = (dateRange: { from: Date; to?: Date }) => {
+    if (!dateRange.from) return "";
+    let dateString = format(dateRange.from, "PPP");
+    if (dateRange.to) {
+      dateString += ` to ${format(dateRange.to, "PPP")}`;
+    }
+    return dateString;
+  }
 
   return (
     <div>
@@ -136,20 +158,25 @@ export function EventWizard() {
                             <FormMessage />
                         </FormItem>
                     )} />
-                    <FormField name="date" control={form.control} render={({ field }) => (
+                    <FormField name="dateRange" control={form.control} render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Date</FormLabel>
+                            <FormLabel>Date Range</FormLabel>
                             <Popover>
                                 <PopoverTrigger asChild>
                                 <FormControl>
-                                    <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                                    {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value?.from && "text-muted-foreground")}>
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {formatDateRangeForDisplay(field.value)}
                                     </Button>
                                 </FormControl>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                    <Calendar
+                                        mode="range"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        initialFocus
+                                    />
                                 </PopoverContent>
                             </Popover>
                             <FormMessage />
@@ -192,7 +219,7 @@ export function EventWizard() {
                     </div>
                     <div>
                         <p className="font-bold">Date & Location</p>
-                        <p>{format(form.getValues('date'), "PPP")} in {form.getValues('location')}</p>
+                        <p>{formatConfirmationDate(form.getValues('dateRange'))} in {form.getValues('location')}</p>
                     </div>
                     <div>
                         <p className="font-bold">Description</p>
