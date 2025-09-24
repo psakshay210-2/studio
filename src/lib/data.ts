@@ -143,3 +143,38 @@ export const MOCK_SERVICE_REQUESTS: ServiceRequest[] = [
     { id: 'sr-3', eventId: 'event-3', service: 'Floral Arrangements', description: 'Elegant floral centerpieces for 50 tables, plus entrance decor.', status: 'Awarded', organizerId: 'user-1', awardedVendorId: 'user-4', bidAmount: 8500 },
     { id: 'sr-4', eventId: 'event-1', service: 'Security Staff', description: '20 security personnel for all event days, including overnight watch.', status: 'Open', organizerId: 'user-1' },
 ];
+
+export const MOCK_REGISTRATIONS_DATA: Record<string, { month: string; registrations: number }[]> = {
+    'event-1': [
+      { month: "May", registrations: 186 },
+      { month: "June", registrations: 305 },
+      { month: "July", registrations: 237 },
+      { month: "August", registrations: 473 },
+      { month: "September", registrations: 609 },
+      { month: "October", registrations: 814 },
+    ],
+    'event-2': [
+      { month: "March", registrations: 50 },
+      { month: "April", registrations: 120 },
+      { month: "May", registrations: 250 },
+      { month: "June", registrations: 400 },
+      { month: "July", registrations: 600 },
+      { month: "August", registrations: 750 },
+    ],
+    'event-3': [
+      { month: "June", registrations: 100 },
+      { month: "July", registrations: 150 },
+      { month: "August", registrations: 280 },
+      { month: "September", registrations: 400 },
+      { month: "October", registrations: 520 },
+      { month: "November", registrations: 600 },
+    ],
+    'event-4': [
+        { month: "Feb", registrations: 30 },
+        { month: "Mar", registrations: 60 },
+        { month: "Apr", registrations: 90 },
+        { month: "May", registrations: 150 },
+        { month: "June", registrations: 210 },
+        { month: "July", registrations: 250 },
+    ]
+};

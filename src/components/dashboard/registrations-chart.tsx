@@ -3,25 +3,10 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartContainer,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
-const chartData = [
-  { month: "January", registrations: 186 },
-  { month: "February", registrations: 305 },
-  { month: "March", registrations: 237 },
-  { month: "April", registrations: 73 },
-  { month: "May", registrations: 209 },
-  { month: "June", registrations: 214 },
-]
+import { MOCK_REGISTRATIONS_DATA } from "@/lib/data";
 
 const chartConfig = {
   registrations: {
@@ -30,7 +15,22 @@ const chartConfig = {
   },
 }
 
-export function RegistrationsChart() {
+type RegistrationsChartProps = {
+    eventId?: string;
+};
+
+
+export function RegistrationsChart({ eventId }: RegistrationsChartProps) {
+  const chartData = eventId ? MOCK_REGISTRATIONS_DATA[eventId] || [] : [];
+  
+  if (!chartData || chartData.length === 0) {
+    return (
+        <div className="h-[300px] w-full flex items-center justify-center">
+            <p className="text-muted-foreground">Please select an event to view registration data.</p>
+        </div>
+    )
+  }
+
   return (
     <div className="h-[300px] w-full">
         <ChartContainer config={chartConfig} className="h-full w-full">

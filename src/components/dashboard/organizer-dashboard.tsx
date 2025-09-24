@@ -1,5 +1,11 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { MOCK_TASKS } from '@/lib/data';
 import { useEvents } from '@/contexts/event-context';
 import { List, Calendar, CheckSquare } from 'lucide-react';
@@ -8,11 +14,25 @@ import Link from 'next/link';
 import { Badge } from '../ui/badge';
 import { DashboardSummary } from './dashboard-summary';
 import { RegistrationsChart } from './registrations-chart';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useState } from 'react';
 
 export function OrganizerDashboard() {
   const { events } = useEvents();
-  const upcomingEvents = events.filter(e => e.status === 'Upcoming' && !e.parentId).slice(0, 2);
+  const upcomingEvents = events
+    .filter((e) => e.status === 'Upcoming' && !e.parentId)
+    .slice(0, 2);
   const recentTasks = MOCK_TASKS.slice(0, 3);
+  const selectableEvents = events.filter((e) => !e.parentId);
+  const [selectedEventId, setSelectedEventId] = useState(
+    selectableEvents[0]?.id
+  );
 
   return (
     <div className="grid gap-6">
@@ -27,7 +47,11 @@ export function OrganizerDashboard() {
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-4">
             {upcomingEvents.map((event) => (
-              <Link href={`/events/${event.id}`} key={event.id} className="group">
+              <Link
+                href={`/events/${event.id}`}
+                key={event.id}
+                className="group"
+              >
                 <Card className="overflow-hidden transition-all group-hover:shadow-lg group-hover:-translate-y-1">
                   <Image
                     src={event.image}
@@ -39,7 +63,9 @@ export function OrganizerDashboard() {
                   />
                   <CardHeader>
                     <CardTitle className="text-lg">{event.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{event.startDate} &middot; {event.location}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {event.startDate} &middot; {event.location}
+                    </p>
                   </CardHeader>
                 </Card>
               </Link>
@@ -55,13 +81,27 @@ export function OrganizerDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentTasks.map(task => (
-              <div key={task.id} className="flex items-start justify-between">
+            {recentTasks.map((task) => (
+              <div
+                key={task.id}
+                className="flex items-start justify-between"
+              >
                 <div>
                   <p className="font-medium">{task.title}</p>
-                  <p className="text-sm text-muted-foreground">{events.find(e => e.id === task.eventId)?.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {events.find((e) => e.id === task.eventId)?.name}
+                  </p>
                 </div>
-                <Badge variant={task.status === 'Done' ? 'secondary' : 'default'} className={task.status === 'In Progress' ? 'bg-accent text-accent-foreground' : ''}>{task.status}</Badge>
+                <Badge
+                  variant={task.status === 'Done' ? 'secondary' : 'default'}
+                  className={
+                    task.status === 'In Progress'
+                      ? 'bg-accent text-accent-foreground'
+                      : ''
+                  }
+                >
+                  {task.status}
+                </Badge>
               </div>
             ))}
           </CardContent>
@@ -69,10 +109,34 @@ export function OrganizerDashboard() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><List className="w-5 h-5" /> Registrations Overview</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <List className="w-5 h-5" /> Registrations Overview
+              </CardTitle>
+              <CardDescription>
+                View registration trends for a specific event.
+              </CardDescription>
+            </div>
+            <Select
+              value={selectedEventId}
+              onValueChange={setSelectedEventId}
+            >
+              <SelectTrigger className="w-full sm:w-[240px]">
+                <SelectValue placeholder="Select an event" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectableEvents.map((event) => (
+                  <SelectItem key={event.id} value={event.id}>
+                    {event.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
-          <RegistrationsChart />
+          <RegistrationsChart eventId={selectedEventId} />
         </CardContent>
       </Card>
     </div>
