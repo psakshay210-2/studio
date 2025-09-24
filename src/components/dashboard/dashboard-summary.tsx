@@ -60,10 +60,12 @@ export function DashboardSummary() {
         {loading ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
           </div>
         ) : (
-          <p className="text-foreground/90">{summary}</p>
+          <div className="text-foreground/90 whitespace-pre-wrap">{summary}</div>
         )}
       </CardContent>
     </Card>

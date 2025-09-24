@@ -23,7 +23,7 @@ const DashboardSummaryInputSchema = z.object({
 export type DashboardSummaryInput = z.infer<typeof DashboardSummaryInputSchema>;
 
 const DashboardSummaryOutputSchema = z.object({
-  summary: z.string().describe('A personalized summary of key information and prioritized items, formatted as a bulleted list.'),
+  summary: z.string().describe('A personalized summary of key information and prioritized items, formatted as a markdown bulleted list.'),
 });
 export type DashboardSummaryOutput = z.infer<typeof DashboardSummaryOutputSchema>;
 
@@ -37,13 +37,13 @@ const prompt = ai.definePrompt({
   output: {schema: DashboardSummaryOutputSchema},
   prompt: `You are an AI assistant specializing in creating personalized dashboard summaries.
 
-  Based on the user's role, current activities, events, tasks and updates, create a concise and informative summary as a bulleted list of key points. Each point should help the user quickly understand what requires their attention.
+  Based on the user's role, current activities, events, tasks and updates, create a concise and informative summary as a markdown bulleted list of key points. Each point should start with a '-'. Each point should help the user quickly understand what requires their attention.
 
   User Role: {{{userRole}}}
   Current Activities: {{{currentActivities}}}
-  Events: {{#each events}}{{{this}}}\n{{/each}}
-  Tasks: {{#each tasks}}{{{this}}}\n{{/each}}
-  Updates: {{#each updates}}{{{this}}}\n{{/each}}
+  Events: {{#each events}}- {{{this}}}\n{{/each}}
+  Tasks: {{#each tasks}}- {{{this}}}\n{{/each}}
+  Updates: {{#each updates}}- {{{this}}}\n{{/each}}
 
   Summary:`,
 });
