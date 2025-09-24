@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDes
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CalendarIcon, Loader2, Sparkles } from 'lucide-react';
+import { CalendarIcon, Loader2, Sparkles, Users, X } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -18,8 +18,14 @@ import { useToast } from '@/hooks/use-toast';
 import { generateEventDescription } from '@/ai/flows/event-description-generator';
 import { useEvents } from '@/contexts/event-context';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import type { DateRange } from 'react-day-picker';
+import { MOCK_USERS } from '@/lib/data';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import type { EventCoordinator } from '@/lib/types';
+
 
 const eventSchema = z.object({
   name: z.string().min(3, "Event name must be at least 3 characters."),
@@ -30,13 +36,18 @@ const eventSchema = z.object({
   }),
   keywords: z.string().optional(),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  coordinators: z.array(z.object({
+    userId: z.string(),
+    eventRole: z.enum(['Coordinator', 'Lead', 'Volunteer']),
+  })).optional(),
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
 
 const steps = [
   { id: 'Step 1', name: 'Event Details' },
-  { id: 'Step 2', name: 'Confirmation' },
+  { id: 'Step 2', name: 'Add Team' },
+  { id: 'Step 3', name: 'Confirmation' },
 ];
 
 export function EventWizard() {
@@ -46,7 +57,6 @@ export function EventWizard() {
   const { addEvent } = useEvents();
   const router = useRouter();
 
-
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -54,6 +64,7 @@ export function EventWizard() {
       location: '',
       description: '',
       keywords: '',
+      coordinators: [],
     }
   });
 
@@ -82,6 +93,24 @@ export function EventWizard() {
       setIsGenerating(false);
     }
   };
+  
+  const addCoordinator = (userId: string) => {
+    const currentCoordinators = form.getValues('coordinators') || [];
+    if (!currentCoordinators.find(c => c.userId === userId)) {
+        form.setValue('coordinators', [...currentCoordinators, { userId, eventRole: 'Coordinator' }]);
+    }
+  };
+
+  const removeCoordinator = (userId: string) => {
+    const currentCoordinators = form.getValues('coordinators') || [];
+    form.setValue('coordinators', currentCoordinators.filter(c => c.userId !== userId));
+  };
+  
+  const updateCoordinatorRole = (userId: string, eventRole: 'Coordinator' | 'Lead' | 'Volunteer') => {
+    const currentCoordinators = form.getValues('coordinators') || [];
+    form.setValue('coordinators', currentCoordinators.map(c => c.userId === userId ? { ...c, eventRole } : c));
+  };
+
 
   const processForm = (data: EventFormData) => {
     addEvent({
@@ -92,7 +121,8 @@ export function EventWizard() {
         location: data.location,
         description: data.description,
         image: 'https://picsum.photos/seed/new-event/600/400',
-        status: 'Upcoming'
+        status: 'Upcoming',
+        coordinators: data.coordinators,
     });
     toast({
         title: 'Event Created!',
@@ -102,7 +132,13 @@ export function EventWizard() {
   };
   
   const next = async () => {
-    const isValid = await form.trigger(['name', 'location', 'dateRange', 'description']);
+    let isValid = false;
+    if (currentStep === 0) {
+      isValid = await form.trigger(['name', 'location', 'dateRange', 'description']);
+    } else if (currentStep === 1) {
+      isValid = await form.trigger(['coordinators']);
+    }
+
     if (isValid) {
         if (currentStep < steps.length - 1) {
             setCurrentStep(step => step + 1);
@@ -134,6 +170,8 @@ export function EventWizard() {
     }
     return dateString;
   }
+  
+  const selectedCoordinators = form.watch('coordinators') || [];
 
   return (
     <div>
@@ -208,11 +246,104 @@ export function EventWizard() {
           )}
 
           {currentStep === 1 && (
+             <div className="space-y-6">
+                <h2 className="text-2xl font-bold font-headline">{steps[1].name}</h2>
+                <p className="text-muted-foreground">Assign roles to your event staff.</p>
+
+                <Controller
+                    control={form.control}
+                    name="coordinators"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Coordinators</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button variant="outline" className="w-full justify-start">
+                                        <Users className="mr-2" />
+                                        Select team members...
+                                    </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search users..." />
+                                    <CommandList>
+                                        <CommandEmpty>No users found.</CommandEmpty>
+                                        <CommandGroup>
+                                            {MOCK_USERS.map(user => (
+                                                <CommandItem
+                                                    key={user.id}
+                                                    onSelect={() => addCoordinator(user.id)}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <Avatar className="w-6 h-6">
+                                                        <AvatarImage src={user.avatar} />
+                                                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <span>{user.name}</span>
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </FormItem>
+                    )}
+                />
+                
+                <Card>
+                    <CardContent className="p-4 space-y-4">
+                        {selectedCoordinators.length === 0 && <p className="text-muted-foreground text-sm text-center">No coordinators added yet.</p>}
+                        {selectedCoordinators.map((coordinator) => {
+                            const user = MOCK_USERS.find(u => u.id === coordinator.userId);
+                            if (!user) return null;
+                            return (
+                                <div key={user.id} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar>
+                                            <AvatarImage src={user.avatar} />
+                                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-medium">{user.name}</p>
+                                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Select
+                                            value={coordinator.eventRole}
+                                            onValueChange={(value: 'Coordinator' | 'Lead' | 'Volunteer') => updateCoordinatorRole(user.id, value)}
+                                        >
+                                            <SelectTrigger className="w-[150px]">
+                                                <SelectValue placeholder="Role" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Lead">Lead</SelectItem>
+                                                <SelectItem value="Coordinator">Coordinator</SelectItem>
+                                                <SelectItem value="Volunteer">Volunteer</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Button variant="ghost" size="icon" onClick={() => removeCoordinator(user.id)}>
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </CardContent>
+                </Card>
+            </div>
+          )}
+
+
+          {currentStep === 2 && (
             <div>
-              <h2 className="text-2xl font-bold font-headline">{steps[1].name}</h2>
+              <h2 className="text-2xl font-bold font-headline">{steps[2].name}</h2>
               <p className="text-muted-foreground mt-2">Review your event details before submitting.</p>
               <Card className="mt-6">
-                <CardContent className="p-6 space-y-4">
+                <CardContent className="p-6 grid gap-4">
                     <div>
                         <p className="font-bold">Event Name</p>
                         <p>{form.getValues('name')}</p>
@@ -225,6 +356,28 @@ export function EventWizard() {
                         <p className="font-bold">Description</p>
                         <p className="text-muted-foreground text-sm">{form.getValues('description')}</p>
                     </div>
+                    {selectedCoordinators.length > 0 && (
+                        <div>
+                            <p className="font-bold">Team</p>
+                            <div className="mt-2 space-y-2">
+                                {selectedCoordinators.map(c => {
+                                    const user = MOCK_USERS.find(u => u.id === c.userId);
+                                    return (
+                                        <div key={c.userId} className="flex items-center gap-3">
+                                            <Avatar className="w-8 h-8">
+                                                <AvatarImage src={user?.avatar} />
+                                                <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <p className="text-sm font-medium">{user?.name}</p>
+                                                <p className="text-xs text-muted-foreground">{c.eventRole}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
               </Card>
             </div>

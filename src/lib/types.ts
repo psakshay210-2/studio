@@ -8,6 +8,11 @@ export type User = {
   role: Role;
 };
 
+export type EventCoordinator = {
+    userId: string;
+    eventRole: 'Coordinator' | 'Lead' | 'Volunteer';
+};
+
 export type Event = {
   id: string;
   name: string;
@@ -19,6 +24,7 @@ export type Event = {
   gallery?: string[];
   status: 'Upcoming' | 'Past' | 'Cancelled';
   parentId?: string;
+  coordinators?: EventCoordinator[];
 };
 
 export type TaskStatus = 'To Do' | 'In Progress' | 'Done';

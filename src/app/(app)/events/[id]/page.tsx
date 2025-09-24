@@ -6,12 +6,15 @@ import Image from 'next/image';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Ticket, Clapperboard, GalleryHorizontal } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Clapperboard, GalleryHorizontal, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/contexts/role-context';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useEffect, useState } from 'react';
+import { MOCK_USERS } from '@/lib/data';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 
 export default function EventDetailsPage() {
   const { id } = useParams();
@@ -106,6 +109,32 @@ export default function EventDetailsPage() {
               <p className="text-lg text-muted-foreground">{event.description}</p>
             </CardContent>
           </Card>
+
+          {event.coordinators && event.coordinators.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Users /> Event Team</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {event.coordinators.map((coordinator: any) => {
+                  const user = MOCK_USERS.find(u => u.id === coordinator.userId);
+                  if (!user) return null;
+                  return (
+                    <div key={user.id} className="flex items-center gap-3 bg-muted/50 p-3 rounded-lg">
+                      <Avatar>
+                        <AvatarImage src={user.avatar} />
+                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">{user.name}</p>
+                        <p className="text-sm text-muted-foreground">{coordinator.eventRole}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
 
           {event.gallery && event.gallery.length > 0 && (
             <Card>
