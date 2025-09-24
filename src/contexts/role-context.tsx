@@ -1,9 +1,8 @@
 'use client';
 
 import type { Role, User } from '@/lib/types';
-import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode } from 'react';
 import { MOCK_USERS } from '@/lib/data';
-import { useAuth } from './auth-context';
 
 interface RoleContextType {
   role: Role;
@@ -14,11 +13,13 @@ interface RoleContextType {
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
-export function RoleProvider({ children }: { children: React.ReactNode }) {
-  const { user: authUser } = useAuth(); 
+// We pass the authenticated user from a parent provider (AuthProvider via AuthGuard)
+// This avoids a direct dependency from RoleProvider -> AuthProvider, which was causing HMR issues.
+export function RoleProvider({ children, authUser }: { children: ReactNode, authUser: User | null }) {
+  
   const [role, setRole] = useState<Role>(authUser?.role || 'Organizer');
   
-  // The user is the authenticated user. Role switching only changes the `role` state.
+  // The user is the authenticated user, defaulting to a mock organizer if none is provided.
   const user = authUser || MOCK_USERS.find(u => u.role === 'Organizer')!;
 
   // To allow exploring all views, we make all roles available in the switcher.

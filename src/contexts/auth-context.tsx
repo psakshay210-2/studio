@@ -1,11 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { MOCK_USERS } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { User } from '@/lib/types';
-import { useRole } from './role-context';
+import type { User, Role } from '@/lib/types';
+import { RoleProvider, useRole } from './role-context';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -23,22 +23,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // This effect should only run in the RoleProvider, after auth is settled.
-    // It's a bit of a workaround for the context dependency.
-  }, []);
-
-
-  useEffect(() => {
+    // Check for user in session storage on initial load
     try {
       const storedUser = sessionStorage.getItem('authUser');
       if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        setUser(JSON.parse(storedUser));
       }
     } catch (error) {
       console.error('Could not access session storage:', error);
     } finally {
-      setTimeout(() => setLoading(false), 500);
+        // Use a small delay to prevent screen flicker
+        setTimeout(() => setLoading(false), 300);
     }
   }, []);
   
@@ -50,7 +45,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(foundUser);
       try {
         sessionStorage.setItem('authUser', JSON.stringify(foundUser));
-        // We still store role for initial role setting on reload.
         sessionStorage.setItem('userRole', foundUser.role);
       } catch (error) {
         console.error('Could not access session storage:', error);
@@ -76,7 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      <RoleProvider authUser={user}>
+        {children}
+      </RoleProvider>
     </AuthContext.Provider>
   );
 }
@@ -89,28 +85,31 @@ export function useAuth() {
   return context;
 }
 
-export function AuthGuard({ children }: { children: ReactNode }) {
-    const { isAuthenticated, loading } = useAuth();
+
+function AuthGuardInner({ children }: { children: ReactNode }) {
+    const { isAuthenticated, user, loading } = useAuth();
     const { setRole } = useRole();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
-        if (!loading && !isAuthenticated) {
-            router.push('/login');
-        }
-        if(!loading && isAuthenticated) {
-          try {
-            // On load, set the role from session storage if it exists,
-            // allowing the "view as" state to persist across reloads.
-            const storedRole = sessionStorage.getItem('userRole');
-            if (storedRole) {
-              setRole(storedRole as any);
+        if (!loading) {
+            if (!isAuthenticated) {
+                router.push('/login');
+            } else {
+                 try {
+                    const storedRole = sessionStorage.getItem('userRole') as Role;
+                    if (storedRole) {
+                        setRole(storedRole);
+                    } else if (user) {
+                        setRole(user.role);
+                    }
+                } catch (error) {
+                    console.error('Could not access session storage:', error);
+                }
             }
-          } catch (error) {
-            console.error('Could not access session storage:', error);
-          }
         }
-    }, [isAuthenticated, loading, router, setRole]);
+    }, [isAuthenticated, loading, router, pathname, setRole, user]);
 
 
     if (loading || !isAuthenticated) {
@@ -137,4 +136,14 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     }
 
     return <>{children}</>;
+}
+
+
+export function AuthGuard({ children }: { children: ReactNode }) {
+  // The AuthGuard needs RoleProvider to function.
+  // By wrapping the inner logic, we ensure the `useRole` hook
+  // is only called within the right context.
+  return (
+    <AuthGuardInner>{children}</AuthGuardInner>
+  )
 }
