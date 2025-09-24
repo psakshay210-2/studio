@@ -3,12 +3,13 @@
 import React from 'react';
 import { RoleSwitcher } from './role-switcher';
 import { Button } from './ui/button';
-import { Bell, Search, Menu, Handshake } from 'lucide-react';
+import { Bell, Search, Menu, Handshake, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import {
@@ -20,6 +21,9 @@ import {
 import { useRole } from '@/contexts/role-context';
 import type { Role } from '@/lib/types';
 import { Logo } from './icons/logo';
+import { useAuth } from '@/contexts/auth-context';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+
 
 const navItemsByRole: Record<
   Role,
@@ -52,7 +56,8 @@ const navItemsByRole: Record<
 };
 
 export function AppHeader() {
-  const { role } = useRole();
+  const { role, user } = useRole();
+  const { logout } = useAuth();
   const navItems = navItemsByRole[role];
 
   return (
@@ -83,6 +88,28 @@ export function AppHeader() {
           <Bell className="h-5 w-5" />
           <span className="sr-only">Notifications</span>
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+              </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+              <DropdownMenuItem className="flex flex-col items-start gap-1" disabled>
+                <p className="font-semibold">{user.name}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={logout}>
+                <LogOut className="mr-2" />
+                Logout
+              </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <div className="md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -1,4 +1,5 @@
 import { AppLayout } from '@/components/app-layout';
+import { AuthGuard } from '@/contexts/auth-context';
 import { EventProvider } from '@/contexts/event-context';
 
 export default function MainAppLayout({
@@ -6,5 +7,11 @@ export default function MainAppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <EventProvider><AppLayout>{children}</AppLayout></EventProvider>;
+  return (
+    <AuthGuard>
+      <EventProvider>
+        <AppLayout>{children}</AppLayout>
+      </EventProvider>
+    </AuthGuard>
+  );
 }
