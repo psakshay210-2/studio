@@ -38,7 +38,7 @@ const eventSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters."),
   coordinators: z.array(z.object({
     userId: z.string(),
-    eventRole: z.enum(['Coordinator', 'Lead', 'Volunteer']),
+    eventRole: z.string().min(1, "Role is required."),
   })).optional(),
 });
 
@@ -106,9 +106,9 @@ export function EventWizard() {
     form.setValue('coordinators', currentCoordinators.filter(c => c.userId !== userId));
   };
   
-  const updateCoordinatorRole = (userId: string, eventRole: 'Coordinator' | 'Lead' | 'Volunteer') => {
+  const updateCoordinatorRole = (userId: string, eventRole: string) => {
     const currentCoordinators = form.getValues('coordinators') || [];
-    form.setValue('coordinators', currentCoordinators.map(c => c.userId === userId ? { ...c, eventRole } : c));
+    form.setValue('coordinators', currentCoordinators.map(c => c.userId === userId ? { ...c, eventRole } : c), {shouldValidate: true});
   };
 
 
@@ -137,6 +137,8 @@ export function EventWizard() {
       isValid = await form.trigger(['name', 'location', 'dateRange', 'description']);
     } else if (currentStep === 1) {
       isValid = await form.trigger(['coordinators']);
+    } else if (currentStep === 2) {
+      isValid = true;
     }
 
     if (isValid) {
@@ -296,7 +298,7 @@ export function EventWizard() {
                 <Card>
                     <CardContent className="p-4 space-y-4">
                         {selectedCoordinators.length === 0 && <p className="text-muted-foreground text-sm text-center">No coordinators added yet.</p>}
-                        {selectedCoordinators.map((coordinator) => {
+                        {selectedCoordinators.map((coordinator, index) => {
                             const user = MOCK_USERS.find(u => u.id === coordinator.userId);
                             if (!user) return null;
                             return (
@@ -312,19 +314,18 @@ export function EventWizard() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Select
-                                            value={coordinator.eventRole}
-                                            onValueChange={(value: 'Coordinator' | 'Lead' | 'Volunteer') => updateCoordinatorRole(user.id, value)}
-                                        >
-                                            <SelectTrigger className="w-[150px]">
-                                                <SelectValue placeholder="Role" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Lead">Lead</SelectItem>
-                                                <SelectItem value="Coordinator">Coordinator</SelectItem>
-                                                <SelectItem value="Volunteer">Volunteer</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <FormField
+                                            control={form.control}
+                                            name={`coordinators.${index}.eventRole`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Lead" {...field} className="w-[150px]"/>
+                                                </FormControl>
+                                                <FormMessage />
+                                                </FormItem>
+                                            )}
+                                            />
                                         <Button variant="ghost" size="icon" onClick={() => removeCoordinator(user.id)}>
                                             <X className="h-4 w-4" />
                                         </Button>

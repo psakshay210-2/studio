@@ -10,7 +10,7 @@ export type User = {
 
 export type EventCoordinator = {
     userId: string;
-    eventRole: 'Coordinator' | 'Lead' | 'Volunteer';
+    eventRole: string;
 };
 
 export type Event = {
