@@ -100,6 +100,8 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         }
         if(!loading && isAuthenticated) {
           try {
+            // On load, set the role from session storage if it exists,
+            // allowing the "view as" state to persist across reloads.
             const storedRole = sessionStorage.getItem('userRole');
             if (storedRole) {
               setRole(storedRole as any);

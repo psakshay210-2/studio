@@ -21,18 +21,29 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   // The user is the authenticated user. Role switching only changes the `role` state.
   const user = authUser || MOCK_USERS.find(u => u.role === 'Organizer')!;
 
-  // Available roles are now just the roles the logged-in user has.
-  // In our mock data, each user has one role.
-  const availableRoles: Role[] = authUser ? [authUser.role] : ['Organizer', 'Approver', 'Participant', 'Vendor', 'Sponsor'];
+  // To allow exploring all views, we make all roles available in the switcher.
+  const availableRoles: Role[] = ['Organizer', 'Approver', 'Participant', 'Vendor', 'Sponsor'];
 
   useEffect(() => {
+    // When the authenticated user changes, set the initial role to their primary role.
     if (authUser) {
       setRole(authUser.role);
     }
   }, [authUser]);
 
 
-  const value = { role, setRole, user, availableRoles };
+  const handleSetRole = (newRole: Role) => {
+    setRole(newRole);
+    // Persist the selected role view so it's remembered on reload
+    try {
+        sessionStorage.setItem('userRole', newRole);
+    } catch (error) {
+        console.error('Could not access session storage:', error);
+    }
+  };
+
+
+  const value = { role, setRole: handleSetRole, user, availableRoles };
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }
