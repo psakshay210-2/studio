@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { summarizeDashboard } from '@/ai/flows/personalized-dashboard-summarization';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,6 +7,9 @@ import { MOCK_TASKS, MOCK_APPROVALS } from '@/lib/data';
 import { useEvents } from '@/contexts/event-context';
 import { useRole } from '@/contexts/role-context';
 import { Sparkles } from 'lucide-react';
+import type { Role } from '@/lib/types';
+
+const summaryCache = new Map<Role, string>();
 
 export function DashboardSummary() {
   const { role } = useRole();
@@ -16,6 +19,12 @@ export function DashboardSummary() {
 
   useEffect(() => {
     async function getSummary() {
+      if (summaryCache.has(role)) {
+        setSummary(summaryCache.get(role)!);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         const input = {
@@ -27,9 +36,11 @@ export function DashboardSummary() {
         };
         const result = await summarizeDashboard(input);
         setSummary(result.summary);
+        summaryCache.set(role, result.summary);
       } catch (error) {
         console.error('Error generating summary:', error);
-        setSummary('Could not generate a summary at this time.');
+        // Don't cache errors, just show a message.
+        setSummary('Could not generate a summary at this time due to high traffic. Please try again in a moment.');
       } finally {
         setLoading(false);
       }
