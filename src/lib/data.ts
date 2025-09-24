@@ -1,4 +1,4 @@
-import type { User, Event, Task, Channel } from '@/lib/types';
+import type { User, Event, Task, Channel, Approval } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export const MOCK_USERS: User[] = [
@@ -119,7 +119,7 @@ export const MOCK_CHANNELS: Channel[] = [
   }
 ];
 
-export const MOCK_APPROVALS = [
+export const MOCK_APPROVALS: Approval[] = [
   { id: 'approve-1', eventName: 'InnovateX 2024', item: 'Catering Contract - "Gourmet Bites"', submittedBy: 'Balaji M', amount: 45000 },
   { id: 'approve-2', eventName: 'Sunset Music Fest', item: 'Artist Rider - DJ Phoenix', submittedBy: 'Govind Raj', amount: 20000 },
   { id: 'approve-3', eventName: 'InnovateX 2024', item: 'AV Equipment Rental', submittedBy: 'Balaji M', amount: 15000 },

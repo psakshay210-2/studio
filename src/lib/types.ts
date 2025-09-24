@@ -50,3 +50,11 @@ export type Channel = {
   name: string;
   messages: Message[];
 };
+
+export type Approval = {
+  id: string;
+  eventName: string;
+  item: string;
+  submittedBy: string;
+  amount: number;
+};
