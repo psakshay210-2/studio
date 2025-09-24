@@ -6,9 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { MOCK_TASKS, MOCK_APPROVALS } from '@/lib/data';
+import { MOCK_TASKS, MOCK_APPROVALS, MOCK_SPONSORSHIP_PACKAGES, MOCK_SPONSORSHIP_APPLICATIONS } from '@/lib/data';
 import { useEvents } from '@/contexts/event-context';
-import { List, Calendar, CheckSquare, PlusCircle } from 'lucide-react';
+import { List, Calendar, CheckSquare, PlusCircle, Handshake } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '../ui/badge';
@@ -24,8 +24,10 @@ import {
 import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import type { Approval } from '@/lib/types';
+import type { Approval, SponsorshipPackage, SponsorshipApplication } from '@/lib/types';
 import { CreateFinancialRequestDialog } from './create-financial-request-dialog';
+import { CreateSponsorshipPackageDialog } from '../sponsorships/create-sponsorship-package-dialog';
+import { MOCK_USERS } from '@/lib/data';
 
 export function OrganizerDashboard() {
   const { events } = useEvents();
@@ -40,6 +42,10 @@ export function OrganizerDashboard() {
   const [financialRequests, setFinancialRequests] = useState<Approval[]>(MOCK_APPROVALS.filter(a => a.submittedBy === 'Balaji M'));
   const [isCreateRequestOpen, setCreateRequestOpen] = useState(false);
 
+  const [sponsorshipPackages, setSponsorshipPackages] = useState<SponsorshipPackage[]>(MOCK_SPONSORSHIP_PACKAGES);
+  const [sponsorshipApplications, setSponsorshipApplications] = useState<SponsorshipApplication[]>(MOCK_SPONSORSHIP_APPLICATIONS);
+  const [isCreatePackageOpen, setCreatePackageOpen] = useState(false);
+
   const handleAddRequest = (item: string, amount: number, eventName: string) => {
     const newRequest: Approval = {
         id: `approve-${Date.now()}`,
@@ -50,6 +56,24 @@ export function OrganizerDashboard() {
     };
     setFinancialRequests(prev => [newRequest, ...prev]);
   };
+
+  const handleAddPackage = (newPackage: Omit<SponsorshipPackage, 'id' | 'status'>) => {
+    const packageToAdd: SponsorshipPackage = {
+      ...newPackage,
+      id: `pkg-${Date.now()}`,
+      status: 'Available',
+    };
+    setSponsorshipPackages(prev => [packageToAdd, ...prev]);
+  };
+
+  const getSponsorshipStatusVariant = (status: SponsorshipPackage['status']) => {
+    switch (status) {
+        case 'Available': return 'secondary';
+        case 'Pending': return 'default';
+        case 'Sold': return 'outline';
+        default: return 'default';
+    }
+  }
 
   return (
     <div className="grid gap-6">
@@ -125,6 +149,58 @@ export function OrganizerDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2"><Handshake /> Sponsorship Packages</CardTitle>
+              <CardDescription>Manage sponsorship tiers for your events.</CardDescription>
+            </div>
+            <Button onClick={() => setCreatePackageOpen(true)}>
+              <PlusCircle />
+              Create Package
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+           <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Event</TableHead>
+                <TableHead>Package</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Applicant</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sponsorshipPackages.map((pkg) => {
+                const event = events.find(e => e.id === pkg.eventId);
+                const application = sponsorshipApplications.find(app => app.packageId === pkg.id);
+                const sponsor = MOCK_USERS.find(u => u.id === application?.sponsorId);
+                return (
+                  <TableRow key={pkg.id}>
+                    <TableCell className="font-medium">{event?.name}</TableCell>
+                    <TableCell>{pkg.name}</TableCell>
+                    <TableCell className="text-right">${pkg.price.toLocaleString()}</TableCell>
+                    <TableCell><Badge variant={getSponsorshipStatusVariant(pkg.status)}>{pkg.status}</Badge></TableCell>
+                    <TableCell>{sponsor?.name || 'N/A'}</TableCell>
+                  </TableRow>
+                )
+              })}
+               {sponsorshipPackages.length === 0 && (
+                <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                        No sponsorship packages created yet.
+                    </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
 
        <Card>
         <CardHeader>
@@ -205,6 +281,11 @@ export function OrganizerDashboard() {
         isOpen={isCreateRequestOpen}
         onOpenChange={setCreateRequestOpen}
         onFinancialRequestCreate={handleAddRequest}
+      />
+      <CreateSponsorshipPackageDialog
+        isOpen={isCreatePackageOpen}
+        onOpenChange={setCreatePackageOpen}
+        onSponsorshipPackageCreate={handleAddPackage}
       />
     </div>
   );

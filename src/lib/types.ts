@@ -76,3 +76,23 @@ export type ServiceRequest = {
     awardedVendorId?: string;
     bidAmount?: number;
 };
+
+export type SponsorshipPackageStatus = 'Available' | 'Pending' | 'Sold';
+
+export type SponsorshipPackage = {
+    id: string;
+    eventId: string;
+    name: string;
+    price: number;
+    benefits: string;
+    status: SponsorshipPackageStatus;
+}
+
+export type SponsorshipApplicationStatus = 'Pending' | 'Approved' | 'Rejected';
+
+export type SponsorshipApplication = {
+    id: string;
+    packageId: string;
+    sponsorId: string;
+    status: SponsorshipApplicationStatus;
+}

@@ -1,5 +1,5 @@
 'use client';
-import type { User, Event, Task, Channel, Approval, ServiceRequest } from '@/lib/types';
+import type { User, Event, Task, Channel, Approval, ServiceRequest, SponsorshipPackage, SponsorshipApplication } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export const MOCK_USERS: User[] = [
@@ -131,11 +131,6 @@ export const MOCK_APPROVALS: Approval[] = [
   { id: 'approve-3', eventName: 'InnovateX 2024', item: 'AV Equipment Rental', submittedBy: 'Balaji M', amount: 15000 },
 ];
 
-export const MOCK_SPONSORSHIPS = [
-  { id: 'sponsor-1', eventName: 'InnovateX 2024', level: 'Platinum', benefits: 'Keynote shoutout, logo on all materials, dedicated booth.' },
-  { id: 'sponsor-2', eventName: 'Sunset Music Fest', level: 'Gold', benefits: 'Logo on main stage banner, social media mentions.' },
-  { id: 'sponsor-3', eventName: 'Annual Charity Gala', level: 'Silver', benefits: 'Logo in event program, table of 10.' },
-];
 
 export const MOCK_SERVICE_REQUESTS: ServiceRequest[] = [
     { id: 'sr-1', eventId: 'event-1', service: 'Full-service Catering', description: 'Need catering for 500 people for 3 days. Breakfast, lunch, and evening snacks.', status: 'Open', organizerId: 'user-1' },
@@ -143,6 +138,15 @@ export const MOCK_SERVICE_REQUESTS: ServiceRequest[] = [
     { id: 'sr-3', eventId: 'event-3', service: 'Floral Arrangements', description: 'Elegant floral centerpieces for 50 tables, plus entrance decor.', status: 'Awarded', organizerId: 'user-1', awardedVendorId: 'user-4', bidAmount: 8500 },
     { id: 'sr-4', eventId: 'event-1', service: 'Security Staff', description: '20 security personnel for all event days, including overnight watch.', status: 'Open', organizerId: 'user-1' },
 ];
+
+export const MOCK_SPONSORSHIP_PACKAGES: SponsorshipPackage[] = [
+  { id: 'pkg-1', eventId: 'event-1', name: 'Platinum', price: 25000, benefits: 'Keynote shoutout, logo on all materials, dedicated booth.', status: 'Available' },
+  { id: 'pkg-2', eventId: 'event-1', name: 'Gold', price: 10000, benefits: 'Logo on main stage banner, social media mentions.', status: 'Available' },
+  { id: 'pkg-3', eventId: 'event-2', name: 'Main Stage Sponsor', price: 50000, benefits: 'Naming rights to the main stage, extensive branding.', status: 'Available' },
+];
+
+export const MOCK_SPONSORSHIP_APPLICATIONS: SponsorshipApplication[] = [];
+
 
 export const MOCK_REGISTRATIONS_DATA: Record<string, { month: string; registrations: number }[]> = {
     'event-1': [

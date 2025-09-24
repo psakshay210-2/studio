@@ -24,7 +24,9 @@ export default function DashboardPage() {
       case 'Sponsor':
         return <SponsorDashboard />;
       default:
-        return <div>Invalid Role</div>;
+        // For a consistent experience, default to a generic or user-specific view
+        // if the role is somehow invalid.
+        return <ParticipantDashboard />;
     }
   };
 

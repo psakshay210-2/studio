@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { summarizeDashboard } from '@/ai/flows/personalized-dashboard-summarization';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MOCK_TASKS, MOCK_APPROVALS, MOCK_SPONSORSHIPS } from '@/lib/data';
+import { MOCK_TASKS, MOCK_APPROVALS } from '@/lib/data';
 import { useEvents } from '@/contexts/event-context';
 import { useRole } from '@/contexts/role-context';
 import { Sparkles } from 'lucide-react';
