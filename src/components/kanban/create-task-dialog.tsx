@@ -31,11 +31,13 @@ import {
 } from '@/components/ui/select';
 import { useEvents } from '@/contexts/event-context';
 import type { Task } from '@/lib/types';
+import { MOCK_USERS } from '@/lib/data';
 
 const taskSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
   description: z.string().optional(),
   eventId: z.string({ required_error: 'Please select an event.' }),
+  assigneeId: z.string().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -43,7 +45,7 @@ type TaskFormData = z.infer<typeof taskSchema>;
 type CreateTaskDialogProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTaskCreate: (task: Omit<Task, 'id' | 'status' | 'assignee'>) => void;
+  onTaskCreate: (task: Omit<Task, 'id' | 'status'>) => void;
 };
 
 export function CreateTaskDialog({
@@ -61,7 +63,8 @@ export function CreateTaskDialog({
   });
 
   const onSubmit = (data: TaskFormData) => {
-    onTaskCreate(data);
+    const assignee = MOCK_USERS.find(user => user.id === data.assigneeId);
+    onTaskCreate({ ...data, assignee });
     onOpenChange(false);
     form.reset();
   };
@@ -127,6 +130,33 @@ export function CreateTaskDialog({
                         .map((event) => (
                           <SelectItem key={event.id} value={event.id}>
                             {event.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="assigneeId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assign To</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Assign this task to a team member" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {MOCK_USERS.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name}
                           </SelectItem>
                         ))}
                     </SelectContent>
