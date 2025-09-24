@@ -6,9 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { MOCK_TASKS } from '@/lib/data';
+import { MOCK_TASKS, MOCK_APPROVALS } from '@/lib/data';
 import { useEvents } from '@/contexts/event-context';
-import { List, Calendar, CheckSquare } from 'lucide-react';
+import { List, Calendar, CheckSquare, PlusCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '../ui/badge';
@@ -22,6 +22,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
+import { Button } from '../ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import type { Approval } from '@/lib/types';
+import { CreateFinancialRequestDialog } from './create-financial-request-dialog';
 
 export function OrganizerDashboard() {
   const { events } = useEvents();
@@ -33,6 +37,19 @@ export function OrganizerDashboard() {
   const [selectedEventId, setSelectedEventId] = useState(
     selectableEvents[0]?.id
   );
+  const [financialRequests, setFinancialRequests] = useState<Approval[]>(MOCK_APPROVALS.filter(a => a.submittedBy === 'Balaji M'));
+  const [isCreateRequestOpen, setCreateRequestOpen] = useState(false);
+
+  const handleAddRequest = (item: string, amount: number, eventName: string) => {
+    const newRequest: Approval = {
+        id: `approve-${Date.now()}`,
+        eventName,
+        item,
+        amount,
+        submittedBy: 'Balaji M'
+    };
+    setFinancialRequests(prev => [newRequest, ...prev]);
+  };
 
   return (
     <div className="grid gap-6">
@@ -70,6 +87,7 @@ export function OrganizerDashboard() {
                 </Card>
               </Link>
             ))}
+            {upcomingEvents.length === 0 && <p className="text-muted-foreground text-sm">No upcoming events.</p>}
           </CardContent>
         </Card>
 
@@ -107,6 +125,49 @@ export function OrganizerDashboard() {
           </CardContent>
         </Card>
       </div>
+
+       <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Financial Requests</CardTitle>
+              <CardDescription>Manage budget requests for your events.</CardDescription>
+            </div>
+            <Button onClick={() => setCreateRequestOpen(true)}>
+              <PlusCircle/>
+              New Request
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Event</TableHead>
+                <TableHead>Item</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {financialRequests.map((request) => (
+                <TableRow key={request.id}>
+                  <TableCell className="font-medium">{request.eventName}</TableCell>
+                  <TableCell>{request.item}</TableCell>
+                  <TableCell className="text-right">${request.amount.toLocaleString()}</TableCell>
+                </TableRow>
+              ))}
+               {financialRequests.length === 0 && (
+                <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                        No financial requests submitted.
+                    </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -139,6 +200,12 @@ export function OrganizerDashboard() {
           <RegistrationsChart eventId={selectedEventId} />
         </CardContent>
       </Card>
+
+      <CreateFinancialRequestDialog
+        isOpen={isCreateRequestOpen}
+        onOpenChange={setCreateRequestOpen}
+        onFinancialRequestCreate={handleAddRequest}
+      />
     </div>
   );
 }
