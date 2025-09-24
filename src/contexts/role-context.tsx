@@ -1,7 +1,7 @@
 'use client';
 
 import type { Role, User } from '@/lib/types';
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { MOCK_USERS } from '@/lib/data';
 import { useAuth } from './auth-context';
 
@@ -15,12 +15,22 @@ interface RoleContextType {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export function RoleProvider({ children }: { children: React.ReactNode }) {
-  const [role, setRole] = useState<Role>('Organizer');
-  const { user: authUser } = useAuth(); // Get user from AuthContext
-  const availableRoles: Role[] = ['Organizer', 'Approver', 'Participant', 'Vendor', 'Sponsor'];
+  const { user: authUser } = useAuth(); 
+  const [role, setRole] = useState<Role>(authUser?.role || 'Organizer');
+  
+  // The user is the authenticated user. Role switching only changes the `role` state.
+  const user = authUser || MOCK_USERS.find(u => u.role === 'Organizer')!;
 
-  // The user is now the authenticated user. Role switching only changes the `role` state.
-  const user = authUser || MOCK_USERS[0];
+  // Available roles are now just the roles the logged-in user has.
+  // In our mock data, each user has one role.
+  const availableRoles: Role[] = authUser ? [authUser.role] : ['Organizer', 'Approver', 'Participant', 'Vendor', 'Sponsor'];
+
+  useEffect(() => {
+    if (authUser) {
+      setRole(authUser.role);
+    }
+  }, [authUser]);
+
 
   const value = { role, setRole, user, availableRoles };
 
