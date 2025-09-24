@@ -13,6 +13,8 @@ export type EventCoordinator = {
     eventRole: string;
 };
 
+export type EventStatus = 'Upcoming' | 'Past' | 'Cancelled' | 'Pending Approval';
+
 export type Event = {
   id: string;
   name: string;
@@ -22,9 +24,10 @@ export type Event = {
   description: string;
   image: string;
   gallery?: string[];
-  status: 'Upcoming' | 'Past' | 'Cancelled';
+  status: EventStatus;
   parentId?: string;
   coordinators?: EventCoordinator[];
+  approverId?: string;
 };
 
 export type TaskStatus = 'To Do' | 'In Progress' | 'Done';
@@ -46,7 +49,7 @@ export type Message = {
 };
 
 export type Channel = {
-  id: string;
+  id:string;
   name: string;
   messages: Message[];
 };
@@ -57,4 +60,18 @@ export type Approval = {
   item: string;
   submittedBy: string;
   amount: number;
+};
+
+export type ServiceRequestStatus = 'Open' | 'Pending Approval' | 'Awarded' | 'Completed' | 'Rejected';
+
+export type ServiceRequest = {
+    id: string;
+    eventId: string;
+    service: string;
+    description: string;
+    status: ServiceRequestStatus;
+    organizerId: string;
+    appliedVendorId?: string;
+    appliedVendor?: User;
+    awardedVendorId?: string;
 };

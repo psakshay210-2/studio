@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Ticket, Clapperboard, GalleryHorizontal, Users } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Clapperboard, GalleryHorizontal, Users, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/contexts/role-context';
 import Link from 'next/link';
@@ -14,13 +14,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useEffect, useState } from 'react';
 import { MOCK_USERS } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
+import type { Event } from '@/lib/types';
 
 
 export default function EventDetailsPage() {
   const { id } = useParams();
-  const { getEventById, getSubEvents } = useEvents();
+  const { getEventById, updateEvent, getSubEvents } = useEvents();
   const { role } = useRole();
-  const [event, setEvent] = useState<any>(null);
+  const { toast } = useToast();
+  const [event, setEvent] = useState<Event | null>(null);
   const [subEvents, setSubEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,12 +31,23 @@ export default function EventDetailsPage() {
     setLoading(true);
     const eventData = getEventById(id as string);
     if (eventData) {
-      setEvent(eventData);
+      setEvent(eventData as Event);
       setSubEvents(getSubEvents(id as string));
     }
     // Simulate loading delay
     setTimeout(() => setLoading(false), 500);
   }, [id, getEventById, getSubEvents]);
+
+  const handleEventApproval = (approved: boolean) => {
+    if (!event) return;
+    const newStatus = approved ? 'Upcoming' : 'Cancelled';
+    updateEvent(event.id, { status: newStatus });
+    setEvent(prev => prev ? { ...prev, status: newStatus } : null);
+    toast({
+        title: `Event ${approved ? 'Approved' : 'Rejected'}`,
+        description: `The event "${event.name}" has been ${approved ? 'approved and is now upcoming' : 'rejected and cancelled'}.`,
+    });
+  }
 
 
   const formatDateRange = (startDate: string, endDate?: string) => {
@@ -109,6 +123,19 @@ export default function EventDetailsPage() {
               <p className="text-lg text-muted-foreground">{event.description}</p>
             </CardContent>
           </Card>
+          
+          {role === 'Approver' && event.status === 'Pending Approval' && (
+            <Card className="border-accent">
+                <CardHeader>
+                    <CardTitle>Approval Action Required</CardTitle>
+                    <CardDescription>This event is awaiting your approval to go live.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex gap-4">
+                    <Button className="w-full" onClick={() => handleEventApproval(true)}><CheckCircle /> Approve Event</Button>
+                    <Button variant="destructive" className="w-full" onClick={() => handleEventApproval(false)}><XCircle /> Reject Event</Button>
+                </CardContent>
+            </Card>
+          )}
 
           {event.coordinators && event.coordinators.length > 0 && (
             <Card>

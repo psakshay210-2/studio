@@ -7,6 +7,7 @@ import { MOCK_EVENTS } from '@/lib/data';
 interface EventContextType {
   events: Event[];
   addEvent: (event: Event) => void;
+  updateEvent: (id: string, updates: Partial<Event>) => void;
   getEventById: (id: string) => Event | undefined;
   getSubEvents: (parentId: string) => Event[];
 }
@@ -20,6 +21,14 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     setEvents((prevEvents) => [event, ...prevEvents]);
   };
 
+  const updateEvent = (id: string, updates: Partial<Event>) => {
+    setEvents((prevEvents) =>
+      prevEvents.map((event) =>
+        event.id === id ? { ...event, ...updates } : event
+      )
+    );
+  };
+
   const getEventById = (id: string) => {
     return events.find((event) => event.id === id);
   };
@@ -28,7 +37,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     return events.filter((event) => event.parentId === parentId);
   }
 
-  const value = { events, addEvent, getEventById, getSubEvents };
+  const value = { events, addEvent, updateEvent, getEventById, getSubEvents };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
 }

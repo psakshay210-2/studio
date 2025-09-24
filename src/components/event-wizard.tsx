@@ -40,6 +40,7 @@ const eventSchema = z.object({
     userId: z.string(),
     eventRole: z.string().min(1, "Role is required."),
   })).optional(),
+  approverId: z.string({ required_error: "Please select an approver." }),
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
@@ -56,6 +57,7 @@ export function EventWizard() {
   const { toast } = useToast();
   const { addEvent } = useEvents();
   const router = useRouter();
+  const approvers = MOCK_USERS.filter(u => u.role === 'Approver');
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -121,12 +123,13 @@ export function EventWizard() {
         location: data.location,
         description: data.description,
         image: 'https://picsum.photos/seed/new-event/600/400',
-        status: 'Upcoming',
+        status: 'Pending Approval',
         coordinators: data.coordinators,
+        approverId: data.approverId,
     });
     toast({
-        title: 'Event Created!',
-        description: `Your event "${data.name}" has been successfully created.`,
+        title: 'Event Submitted for Approval!',
+        description: `Your event "${data.name}" has been sent for approval.`,
     });
     router.push('/events');
   };
@@ -134,7 +137,7 @@ export function EventWizard() {
   const next = async () => {
     let isValid = false;
     if (currentStep === 0) {
-      isValid = await form.trigger(['name', 'location', 'dateRange', 'description']);
+      isValid = await form.trigger(['name', 'location', 'dateRange', 'description', 'approverId']);
     } else if (currentStep === 1) {
       isValid = await form.trigger(['coordinators']);
     } else if (currentStep === 2) {
@@ -174,6 +177,8 @@ export function EventWizard() {
   }
   
   const selectedCoordinators = form.watch('coordinators') || [];
+  const selectedApproverId = form.watch('approverId');
+  const approverDetails = MOCK_USERS.find(u => u.id === selectedApproverId);
 
   return (
     <div>
@@ -244,6 +249,31 @@ export function EventWizard() {
                         <FormMessage />
                     </FormItem>
                 )} />
+                <FormField
+                    control={form.control}
+                    name="approverId"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Approver</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select an approver to launch the event" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {approvers.map((user) => (
+                                <SelectItem key={user.id} value={user.id}>
+                                    {user.name}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormDescription>This person will need to approve the event before it goes live.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
             </div>
           )}
 
@@ -342,7 +372,7 @@ export function EventWizard() {
           {currentStep === 2 && (
             <div>
               <h2 className="text-2xl font-bold font-headline">{steps[2].name}</h2>
-              <p className="text-muted-foreground mt-2">Review your event details before submitting.</p>
+              <p className="text-muted-foreground mt-2">Review your event details before submitting for approval.</p>
               <Card className="mt-6">
                 <CardContent className="p-6 grid gap-4">
                     <div>
@@ -357,6 +387,18 @@ export function EventWizard() {
                         <p className="font-bold">Description</p>
                         <p className="text-muted-foreground text-sm">{form.getValues('description')}</p>
                     </div>
+                    {approverDetails && (
+                        <div>
+                            <p className="font-bold">Approver</p>
+                            <div className="flex items-center gap-3 mt-2">
+                                <Avatar className="w-8 h-8">
+                                    <AvatarImage src={approverDetails.avatar} />
+                                    <AvatarFallback>{approverDetails.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <p className="text-sm">{approverDetails.name}</p>
+                            </div>
+                        </div>
+                    )}
                     {selectedCoordinators.length > 0 && (
                         <div>
                             <p className="font-bold">Team</p>
@@ -389,7 +431,7 @@ export function EventWizard() {
               Back
             </Button>
             <Button type="button" onClick={next}>
-              {currentStep === steps.length - 1 ? 'Create Event' : 'Next'}
+              {currentStep === steps.length - 1 ? 'Submit for Approval' : 'Next'}
             </Button>
           </div>
         </form>

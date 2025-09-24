@@ -1,38 +1,101 @@
+'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Handshake } from 'lucide-react';
 import { DashboardSummary } from './dashboard-summary';
-
-const MOCK_SERVICES = [
-  { id: 'serv-1', eventName: 'InnovateX 2024', service: 'Full-service catering for 3 days', status: 'Confirmed' },
-  { id: 'serv-2', eventName: 'Sunset Music Fest', service: 'Audio/Visual equipment rental', status: 'Pending' },
-  { id: 'serv-3', eventName: 'Annual Charity Gala', service: 'Floral arrangements', status: 'Confirmed' },
-];
+import { MOCK_SERVICE_REQUESTS } from '@/lib/data';
+import type { ServiceRequest } from '@/lib/types';
+import { useState } from 'react';
+import { useEvents } from '@/contexts/event-context';
+import { Button } from '../ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useRole } from '@/contexts/role-context';
 
 export function VendorDashboard() {
+  const { events } = useEvents();
+  const { user } = useRole();
+  const { toast } = useToast();
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>(MOCK_SERVICE_REQUESTS);
+
+  const myAgreements = serviceRequests.filter(sr => sr.awardedVendorId === user.id);
+  const openOpportunities = serviceRequests.filter(sr => sr.status === 'Open');
+
+  const handleBid = (requestId: string) => {
+    // In a real app, this would be a more complex state update involving context or a backend call.
+    setServiceRequests(prev => prev.map(sr => 
+        sr.id === requestId 
+        ? { ...sr, status: 'Pending Approval', appliedVendorId: user.id } 
+        : sr
+    ));
+
+    const request = serviceRequests.find(sr => sr.id === requestId);
+    if(request) {
+        toast({
+            title: 'Bid Submitted!',
+            description: `Your bid for "${request.service}" has been submitted for approval.`,
+        });
+    }
+  };
+
+
   return (
     <div className="grid gap-6">
-        <DashboardSummary />
+      <DashboardSummary />
+      
+      {myAgreements.length > 0 && (
         <Card>
-        <CardHeader>
+          <CardHeader>
             <CardTitle className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5" />
-            Service Requests
+              <Briefcase className="w-5 h-5" />
+              Your Service Agreements
             </CardTitle>
-            <CardDescription>Your current service agreements and requests.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            {MOCK_SERVICES.map(service => (
-            <Card key={service.id} className="flex items-center justify-between p-4">
+            <CardDescription>Your current confirmed service agreements.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {myAgreements.map(service => (
+              <Card key={service.id} className="flex items-center justify-between p-4">
                 <div>
-                <p className="font-semibold">{service.service}</p>
-                <p className="text-sm text-muted-foreground">{service.eventName}</p>
+                  <p className="font-semibold">{service.service}</p>
+                  <p className="text-sm text-muted-foreground">{events.find(e => e.id === service.eventId)?.name}</p>
                 </div>
-                <Badge variant={service.status === 'Confirmed' ? 'default' : 'secondary'}>{service.status}</Badge>
-            </Card>
+                <Badge>{service.status}</Badge>
+              </Card>
             ))}
-        </CardContent>
+          </CardContent>
         </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Handshake className="w-5 h-5" />
+            Open Opportunities
+          </CardTitle>
+          <CardDescription>Service requests you can bid on.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 gap-4">
+          {openOpportunities.map(request => {
+            const event = events.find(e => e.id === request.eventId);
+            return (
+              <Card key={request.id}>
+                 <CardHeader>
+                    <CardTitle>{request.service}</CardTitle>
+                    <CardDescription>{event?.name}</CardDescription>
+                 </CardHeader>
+                 <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">{request.description}</p>
+                    <Button className="w-full" onClick={() => handleBid(request.id)}>Submit Bid</Button>
+                 </CardContent>
+              </Card>
+            )
+          })}
+          {openOpportunities.length === 0 && (
+            <p className="text-muted-foreground text-sm text-center col-span-full py-8">
+              There are no open service opportunities at this time.
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

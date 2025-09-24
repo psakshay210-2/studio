@@ -1,4 +1,5 @@
-import type { User, Event, Task, Channel, Approval } from '@/lib/types';
+'use client';
+import type { User, Event, Task, Channel, Approval, ServiceRequest } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export const MOCK_USERS: User[] = [
@@ -9,6 +10,8 @@ export const MOCK_USERS: User[] = [
   { id: 'user-5', name: 'PS Akshay', email: 'akshay@sponsorcorp.com', avatar: 'https://i.pravatar.cc/150?u=user-5', role: 'Sponsor' },
   { id: 'user-6', name: 'Govind Raj', email: 'govind@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-6', role: 'Organizer' },
   { id: 'user-7', name: 'Jacob George', email: 'jacob@eventflow.com', avatar: 'https://i.pravatar.cc/150?u=user-7', role: 'Organizer' },
+  { id: 'user-8', name: 'Soundman Sam', email: 'sam@sound.com', avatar: 'https://i.pravatar.cc/150?u=user-8', role: 'Vendor' },
+
 ];
 
 const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || 'https://picsum.photos/seed/placeholder/600/400';
@@ -27,7 +30,8 @@ export const MOCK_EVENTS: Event[] = [
     coordinators: [
         { userId: 'user-1', eventRole: 'Lead Organizer' },
         { userId: 'user-6', eventRole: 'Logistics' },
-    ]
+    ],
+    approverId: 'user-2',
   },
   {
     id: 'sub-event-1',
@@ -58,7 +62,8 @@ export const MOCK_EVENTS: Event[] = [
     description: 'An unforgettable weekend of live music, art installations, and beach vibes.',
     image: findImage('music-festival'),
     gallery: [findImage('music-festival'), findImage('charity-run'), findImage('art-exhibition')],
-    status: 'Upcoming',
+    status: 'Pending Approval',
+    approverId: 'user-2',
   },
   {
     id: 'event-3',
@@ -69,6 +74,7 @@ export const MOCK_EVENTS: Event[] = [
     image: findImage('corporate-gala'),
     gallery: [findImage('corporate-gala')],
     status: 'Upcoming',
+    approverId: 'user-2',
   },
   {
     id: 'event-4',
@@ -129,4 +135,11 @@ export const MOCK_SPONSORSHIPS = [
   { id: 'sponsor-1', eventName: 'InnovateX 2024', level: 'Platinum', benefits: 'Keynote shoutout, logo on all materials, dedicated booth.' },
   { id: 'sponsor-2', eventName: 'Sunset Music Fest', level: 'Gold', benefits: 'Logo on main stage banner, social media mentions.' },
   { id: 'sponsor-3', eventName: 'Annual Charity Gala', level: 'Silver', benefits: 'Logo in event program, table of 10.' },
+];
+
+export const MOCK_SERVICE_REQUESTS: ServiceRequest[] = [
+    { id: 'sr-1', eventId: 'event-1', service: 'Full-service Catering', description: 'Need catering for 500 people for 3 days. Breakfast, lunch, and evening snacks.', status: 'Open', organizerId: 'user-1' },
+    { id: 'sr-2', eventId: 'event-2', service: 'Audio/Visual Equipment', description: 'Full AV setup for main stage, including speakers, mics, and lighting rig.', status: 'Pending Approval', organizerId: 'user-6', appliedVendorId: 'user-8', appliedVendor: MOCK_USERS[7] },
+    { id: 'sr-3', eventId: 'event-3', service: 'Floral Arrangements', description: 'Elegant floral centerpieces for 50 tables, plus entrance decor.', status: 'Awarded', organizerId: 'user-1', awardedVendorId: 'user-4' },
+    { id: 'sr-4', eventId: 'event-1', service: 'Security Staff', description: '20 security personnel for all event days, including overnight watch.', status: 'Open', organizerId: 'user-1' },
 ];

@@ -3,7 +3,7 @@
 import React from 'react';
 import { RoleSwitcher } from './role-switcher';
 import { Button } from './ui/button';
-import { Bell, Search, Menu } from 'lucide-react';
+import { Bell, Search, Menu, Handshake } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +30,7 @@ const navItemsByRole: Record<
     { href: '/events', icon: Calendar, label: 'Events' },
     { href: '/tasks', icon: CheckSquare, label: 'Tasks' },
     { href: '/messages', icon: MessageSquare, label: 'Messages' },
+    { href: '/service-requests', icon: Handshake, label: 'Service Requests' },
   ],
   Approver: [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
