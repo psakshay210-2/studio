@@ -1,8 +1,9 @@
 'use client';
 
 import type { Role, User } from '@/lib/types';
-import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { MOCK_USERS } from '@/lib/data';
+import { useAuth } from './auth-context';
 
 interface RoleContextType {
   role: Role;
@@ -13,29 +14,34 @@ interface RoleContextType {
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
-// We pass the authenticated user from a parent provider (AuthProvider via AuthGuard)
-// This avoids a direct dependency from RoleProvider -> AuthProvider, which was causing HMR issues.
-export function RoleProvider({ children, authUser }: { children: ReactNode, authUser: User | null }) {
+export function RoleProvider({ children }: { children: ReactNode }) {
+  const { user: authUser } = useAuth();
   
   const [role, setRole] = useState<Role>(authUser?.role || 'Organizer');
   
-  // The user is the authenticated user, defaulting to a mock organizer if none is provided.
   const user = authUser || MOCK_USERS.find(u => u.role === 'Organizer')!;
 
-  // To allow exploring all views, we make all roles available in the switcher.
   const availableRoles: Role[] = ['Organizer', 'Approver', 'Participant', 'Vendor', 'Sponsor'];
 
   useEffect(() => {
-    // When the authenticated user changes, set the initial role to their primary role.
     if (authUser) {
-      setRole(authUser.role);
+      // On initial auth load or user change, check session storage first, then default to user's primary role.
+      try {
+        const storedRole = sessionStorage.getItem('userRole') as Role;
+        if (storedRole && availableRoles.includes(storedRole)) {
+            setRole(storedRole);
+        } else {
+            setRole(authUser.role);
+        }
+      } catch (error) {
+        setRole(authUser.role);
+      }
     }
   }, [authUser]);
 
 
   const handleSetRole = (newRole: Role) => {
     setRole(newRole);
-    // Persist the selected role view so it's remembered on reload
     try {
         sessionStorage.setItem('userRole', newRole);
     } catch (error) {
