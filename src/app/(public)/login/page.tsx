@@ -19,7 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/icons/logo';
 import { MOCK_USERS } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
-import React from 'react';
+import React, { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -31,6 +32,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const { login } = useAuth();
   const { toast } = useToast();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -41,6 +43,7 @@ export default function LoginPage() {
   });
 
   const onSubmit = (data: LoginFormValues) => {
+    setIsLoggingIn(true);
     const success = login(data.email);
     if (!success) {
       toast({
@@ -48,6 +51,7 @@ export default function LoginPage() {
         title: 'Login Failed',
         description: 'No user found with that email. Please use one of the demo accounts below.',
       });
+      setIsLoggingIn(false);
     }
   };
 
@@ -79,7 +83,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="balaji@eventflow.com" {...field} />
+                        <Input type="email" placeholder="balaji@eventflow.com" {...field} disabled={isLoggingIn} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -92,14 +96,15 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" {...field} disabled={isLoggingIn} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
-                  Sign In
+                <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                  {isLoggingIn && <Loader2 className="animate-spin" />}
+                  {isLoggingIn ? 'Signing In...' : 'Sign In'}
                 </Button>
               </form>
             </Form>
@@ -112,7 +117,7 @@ export default function LoginPage() {
             </CardHeader>
             <CardContent className="space-y-3">
                 {MOCK_USERS.map(user => (
-                    <button key={user.id} onClick={() => handleDemoLogin(user.email)} className="w-full text-left p-2 rounded-md hover:bg-muted transition-colors flex justify-between items-center text-sm">
+                    <button key={user.id} onClick={() => handleDemoLogin(user.email)} className="w-full text-left p-2 rounded-md hover:bg-muted transition-colors flex justify-between items-center text-sm" disabled={isLoggingIn}>
                         <span>{user.email}</span>
                         <Badge variant="secondary">{user.role}</Badge>
                     </button>
