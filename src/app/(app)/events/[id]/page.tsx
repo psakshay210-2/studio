@@ -228,7 +228,7 @@ export default function EventDetailsPage() {
                         </Link>
                       </Button>
                     )}
-                    {role === 'Participant' && (
+                    {role === 'Participant' && event.status === 'Upcoming' && (
                         <Button className="w-full mt-4">
                             <Ticket className="mr-2 h-4 w-4" />
                             Register Now

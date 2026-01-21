@@ -3,31 +3,28 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MOCK_APPROVALS, MOCK_SERVICE_REQUESTS } from '@/lib/data';
+import { MOCK_APPROVALS } from '@/lib/data';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { DashboardSummary } from './dashboard-summary';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import type { Approval, ServiceRequest, Event } from '@/lib/types';
+import type { Approval, Event } from '@/lib/types';
 import { useEvents } from '@/contexts/event-context';
 import Link from 'next/link';
 
 export function ApproverDashboard() {
     const { toast } = useToast();
-    const { events, updateEvent } = useEvents();
+    const { events, updateEvent, serviceRequests, updateServiceRequest } = useEvents();
 
     const [approvals, setApprovals] = useState<Approval[]>(MOCK_APPROVALS);
     const [eventsForApproval, setEventsForApproval] = useState<Event[]>([]);
-    const [serviceRequestsForApproval, setServiceRequestsForApproval] = useState<ServiceRequest[]>([]);
+    
+    const serviceRequestsForApproval = serviceRequests.filter(sr => sr.status === 'Pending Approval');
 
 
     useEffect(() => {
         setEventsForApproval(events.filter(e => e.status === 'Pending Approval'));
     }, [events]);
-
-    useEffect(() => {
-        setServiceRequestsForApproval(MOCK_SERVICE_REQUESTS.filter(sr => sr.status === 'Pending Approval'));
-    }, []);
 
 
     const handleApproval = (id: string, approved: boolean) => {
@@ -56,12 +53,16 @@ export function ApproverDashboard() {
         const request = serviceRequestsForApproval.find(sr => sr.id === id);
         if (!request) return;
 
-        // In a real app, you'd update the state in your context/backend
-        setServiceRequestsForApproval(prev => prev.filter(sr => sr.id !== id));
+        if (approved) {
+            updateServiceRequest(id, { status: 'Awarded', awardedVendorId: request.appliedVendorId });
+        } else {
+            // Re-open the request for other vendors to bid
+            updateServiceRequest(id, { status: 'Open', appliedVendorId: undefined, bidAmount: undefined });
+        }
 
         toast({
             title: `Service Bid ${approved ? 'Approved' : 'Rejected'}`,
-            description: `The bid for "${request.service}" has been ${approved ? 'approved' : 'rejected'}.`,
+            description: `The bid for "${request.service}" has been ${approved ? 'approved and awarded' : 'rejected'}.`,
         });
     }
 

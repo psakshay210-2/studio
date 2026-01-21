@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEvents } from "@/contexts/event-context";
-import { MOCK_SERVICE_REQUESTS, MOCK_USERS } from "@/lib/data";
+import { MOCK_USERS } from "@/lib/data";
 import type { ServiceRequest } from "@/lib/types";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
@@ -12,8 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { CreateServiceRequestDialog } from "@/components/service-requests/create-service-request-dialog";
 
 export default function ServiceRequestsPage() {
-    const [requests, setRequests] = useState<ServiceRequest[]>(MOCK_SERVICE_REQUESTS);
-    const { events } = useEvents();
+    const { events, serviceRequests, addServiceRequest } = useEvents();
     const [isCreateRequestOpen, setCreateRequestOpen] = useState(false);
 
     const getStatusVariant = (status: ServiceRequest['status']) => {
@@ -32,7 +31,7 @@ export default function ServiceRequestsPage() {
             status: 'Open',
             organizerId: 'user-1' // Assuming the current user is the organizer
         };
-        setRequests(prev => [requestToAdd, ...prev]);
+        addServiceRequest(requestToAdd);
     }
 
     return (
@@ -45,7 +44,7 @@ export default function ServiceRequestsPage() {
             </PageHeader>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {requests.map(request => {
+                {serviceRequests.map(request => {
                     const event = events.find(e => e.id === request.eventId);
                     const appliedVendor = MOCK_USERS.find(u => u.id === request.appliedVendorId);
                     const awardedVendor = MOCK_USERS.find(u => u.id === request.awardedVendorId);

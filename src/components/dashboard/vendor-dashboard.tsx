@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, Handshake } from 'lucide-react';
 import { DashboardSummary } from './dashboard-summary';
-import { MOCK_SERVICE_REQUESTS } from '@/lib/data';
 import type { ServiceRequest } from '@/lib/types';
 import { useState } from 'react';
 import { useEvents } from '@/contexts/event-context';
@@ -13,21 +12,20 @@ import { useRole } from '@/contexts/role-context';
 import { SubmitBidDialog } from '../service-requests/submit-bid-dialog';
 
 export function VendorDashboard() {
-  const { events } = useEvents();
+  const { events, serviceRequests, updateServiceRequest } = useEvents();
   const { user } = useRole();
   const { toast } = useToast();
-  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>(MOCK_SERVICE_REQUESTS);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
 
   const myAgreements = serviceRequests.filter(sr => sr.awardedVendorId === user.id);
   const openOpportunities = serviceRequests.filter(sr => sr.status === 'Open');
 
   const handleBidSubmit = (requestId: string, amount: number) => {
-    setServiceRequests(prev => prev.map(sr => 
-        sr.id === requestId 
-        ? { ...sr, status: 'Pending Approval', appliedVendorId: user.id, bidAmount: amount } 
-        : sr
-    ));
+    updateServiceRequest(requestId, {
+        status: 'Pending Approval',
+        appliedVendorId: user.id,
+        bidAmount: amount
+    });
 
     const request = serviceRequests.find(sr => sr.id === requestId);
     if(request) {
